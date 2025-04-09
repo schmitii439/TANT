@@ -618,6 +618,25 @@ export function EnhancedAssistantTab() {
               <Label htmlFor="compare-mode">Model Comparison</Label>
             </div>
             
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="critical-mode" 
+                checked={conspiracyModeActive} 
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    activateConspiracyMode();
+                  } else {
+                    deactivateConspiracyMode();
+                  }
+                  setConspiracyModeActive(checked);
+                }}
+              />
+              <Label htmlFor="critical-mode" className="flex items-center">
+                <Eye className="h-4 w-4 mr-1 text-red-500" />
+                Critical Analysis
+              </Label>
+            </div>
+            
             <Select
               value={language}
               onValueChange={(value) => setLanguage(value as 'english' | 'german')}
@@ -748,7 +767,7 @@ export function EnhancedAssistantTab() {
                         <div className="text-xs text-muted-foreground mt-2 flex justify-between items-center">
                           <span>{message.role === 'assistant' ? `Model: ${message.model}` : ''}</span>
                           
-                          {/* Edit buttons for user messages */}
+                          {/* Edit icon for user messages */}
                           {message.role === 'user' && (
                             <Button 
                               variant="ghost" 
@@ -763,10 +782,7 @@ export function EnhancedAssistantTab() {
                               }}
                               title="Edit message"
                             >
-                              <div className="text-xs text-muted-foreground flex items-center">
-                                <RotateCcw className="h-3 w-3 mr-1" />
-                                <span>Edit</span>
-                              </div>
+                              <Edit className="h-3 w-3" />
                             </Button>
                           )}
                           
@@ -852,10 +868,7 @@ export function EnhancedAssistantTab() {
                               title="Generate a new response"
                               disabled={loading}
                             >
-                              <div className="text-xs text-muted-foreground flex items-center">
-                                <RefreshCw className="h-3 w-3 mr-1" />
-                                <span>Regenerate</span>
-                              </div>
+                              <RefreshCw className="h-3 w-3" />
                             </Button>
                           )}
                         </div>
@@ -865,58 +878,7 @@ export function EnhancedAssistantTab() {
                 </CardContent>
               </Card>
               
-              {/* Special message action buttons */}
-              {isLastUserMessage && (
-                <div className="flex mt-1 space-x-1">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-6 text-xs px-2"
-                    onClick={() => {
-                      // Activate conspiracy mode for this message
-                      activateConspiracyMode();
-                      setConspiracyModeActive(true);
-                      
-                      // Regenerate the response with conspiracy mode
-                      const userPrompt = message.content;
-                      setLoading(true);
-                      
-                      phoenixDeep(transformPromptForLanguage(userPrompt), true)
-                        .then(result => {
-                          const conspiracyResponse: Message = {
-                            id: Date.now(),
-                            role: 'assistant',
-                            content: result.synthesizedResponse,
-                            model: `PHÖNIX Critical Override (${result.modelsUsed.join(', ')})`,
-                            timestamp: new Date()
-                          };
-                          
-                          setMessages(prev => [...prev, conspiracyResponse]);
-                          saveMessageToServer(conspiracyResponse);
-                          
-                          if (voiceOutputEnabled) {
-                            speak(result.synthesizedResponse);
-                          }
-                        })
-                        .catch(error => {
-                          console.error('Error generating conspiracy response:', error);
-                          toast({
-                            title: "Failed to activate Conspiracy Mode",
-                            description: "Could not generate critical analysis response.",
-                            variant: "destructive"
-                          });
-                        })
-                        .finally(() => {
-                          setLoading(false);
-                        });
-                    }}
-                    title="Activate Critical Analysis Mode for deeper thinking"
-                  >
-                    <Eye className="h-3 w-3 mr-1 text-red-500" />
-                    <span>Critical Analysis Mode</span>
-                  </Button>
-                </div>
-              )}
+              {/* We removed the Critical Analysis Mode button from here and moved it to the top toolbar */}
             </div>
           );
         })}
