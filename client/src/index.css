@@ -64,9 +64,11 @@
   
   /* Selected element glow */
   .selected-item-glow {
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
     background-color: rgba(255, 255, 255, 0.9) !important;
     color: hsl(var(--primary)) !important;
+    transform: scale(1.05);
+    transition: all 0.2s ease-in-out;
   }
   
   /* Streaming text animation */

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, MicOff, ChevronUp, ChevronDown, Volume2, VolumeX } from 'lucide-react';
+import { Mic, MicOff, ChevronUp, ChevronDown, Volume2, VolumeX, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
@@ -29,68 +29,76 @@ export function FloatingMicrophoneControl({
   isVoiceEnabled = true,
   onVoiceToggle = () => {}
 }: FloatingMicrophoneControlProps) {
+  const [volumeExpanded, setVolumeExpanded] = useState(false);
+
   return (
     <motion.div
       className={cn(
-        "fixed bottom-24 right-4 z-50 flex flex-col items-end",
+        "fixed bottom-4 left-4 z-50 flex flex-col items-start",
         "rounded-xl shadow-lg overflow-visible"
       )}
       initial={{ opacity: 0, y: 20, scale: 0.8 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
     >
-      {/* Vertical volume slider above the microphone */}
-      <AnimatePresence>
-        {isVoiceEnabled && (
-          <motion.div 
-            className="mb-3 bg-background/80 backdrop-blur-sm rounded-lg shadow-md p-2 flex flex-col items-center"
-            initial={{ opacity: 0, height: 0, y: 20 }}
-            animate={{ opacity: 1, height: 'auto', y: 0 }}
-            exit={{ opacity: 0, height: 0, y: 20 }}
-          >
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={cn(
-                      "h-8 w-8 mb-2", 
-                      "rounded-full",
-                      isVoiceEnabled && "bg-white/90 shadow-sm"
-                    )}
-                    onClick={onVoiceToggle}
-                  >
-                    {isVoiceEnabled ? (
-                      <Volume2 className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <VolumeX className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="left">
-                  <p>Sprachausgabe {isVoiceEnabled ? 'ein' : 'aus'}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            <Slider
-              orientation="vertical"
-              value={[volumeLevel]}
-              max={100}
-              step={10}
-              className="h-32"
-              onValueChange={(values) => onVolumeChange(values[0])}
-            />
-            <span className="text-xs font-medium mt-1">{volumeLevel}%</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Horizontal volume control next to the microphone */}
+      <div className="flex items-center mb-2">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "h-10 w-10", 
+                  "rounded-full hover:scale-105 transition-transform",
+                  isVoiceEnabled && "bg-white/90 shadow-sm",
+                  volumeExpanded && "selected-item-glow"
+                )}
+                onClick={() => {
+                  onVoiceToggle();
+                  setVolumeExpanded(prev => !prev);
+                }}
+              >
+                {isVoiceEnabled ? (
+                  <Volume2 className="h-5 w-5 text-green-500" />
+                ) : (
+                  <VolumeX className="h-5 w-5 text-muted-foreground" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p>Sprachausgabe {isVoiceEnabled ? 'ein' : 'aus'}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
+        <AnimatePresence>
+          {volumeExpanded && isVoiceEnabled && (
+            <motion.div 
+              className="ml-2 bg-background/80 backdrop-blur-sm rounded-lg shadow-md p-2 flex items-center"
+              initial={{ opacity: 0, width: 0, x: -20 }}
+              animate={{ opacity: 1, width: 'auto', x: 0 }}
+              exit={{ opacity: 0, width: 0, x: -20 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <Slider
+                value={[volumeLevel]}
+                max={100}
+                step={10}
+                className="w-32"
+                onValueChange={(values) => onVolumeChange(values[0])}
+              />
+              <span className="text-xs font-medium ml-2 min-w-[32px]">{volumeLevel}%</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       <div className="flex items-center">
         {expanded && (
           <motion.div
-            className="bg-background border rounded-l-xl p-3 shadow-md"
+            className="bg-background border rounded-r-xl p-3 shadow-md"
             initial={{ width: 0, opacity: 0 }}
             animate={{ width: "auto", opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
@@ -117,9 +125,9 @@ export function FloatingMicrophoneControl({
                 size="icon"
                 className={cn(
                   "h-12 w-12",
-                  "rounded-full shadow-md",
+                  "rounded-full shadow-md hover:scale-105 transition-transform",
                   listening && "mic-ripple glow-primary",
-                  expanded ? "rounded-l-none" : "rounded-full"
+                  expanded ? "rounded-r-none" : "rounded-full"
                 )}
               >
                 {listening ? (
@@ -129,7 +137,7 @@ export function FloatingMicrophoneControl({
                 )}
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="left">
+            <TooltipContent side="right">
               <p>{listening ? "Spracherkennung beenden" : "Spracherkennung starten"}</p>
             </TooltipContent>
           </Tooltip>
@@ -139,13 +147,13 @@ export function FloatingMicrophoneControl({
       <Button
         variant="outline"
         size="sm"
-        className="mt-1 h-6 w-6 rounded-full opacity-70 hover:opacity-100"
+        className="mt-1 h-6 w-6 rounded-full opacity-70 hover:opacity-100 hover:scale-110 transition-transform ml-3"
         onClick={onExpandToggle}
       >
         {expanded ? (
-          <ChevronDown className="h-3 w-3" />
+          <ChevronLeft className="h-3 w-3" />
         ) : (
-          <ChevronUp className="h-3 w-3" />
+          <ChevronRight className="h-3 w-3" />
         )}
       </Button>
     </motion.div>

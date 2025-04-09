@@ -194,19 +194,19 @@ export function EnhancedAssistantTab() {
   
   // Generate a cinematic intro message
   function generateCinematicIntro(): string {
-    const greetings = [
-      "Initializing Core Intelligence System... all protocols active. Financial, News and Strategic modules online. What intelligence do you require today?",
+    const humorousFacts = [
+      "Ich habe lausige Recherche betrieben! Wusstest du, dass Kianush während eines 24-Stunden-Streams versehentlich seinen Kaffee über drei verschiedene Tastaturen verschüttet hat und trotzdem weitergestreamt hat, indem er sein Handy als temporäre Tastatur verwendete? Ein wahrer Profi!",
       
-      "Financial Combat Unit activated. Markets under surveillance. Data flows secured. Intelligence module engaged. At your command.",
+      "Ich habe lausige Recherche betrieben! Meine Quellen behaupten, dass Kianush einmal mitten in einem wichtigen Stream einen Anruf von 'Angela Merkel' erhalten hat, die sich als sein Pizzalieferant herausstellte, der sich im Gebäude verirrt hatte.",
       
-      "Crypto Warfare systems online. Memecoin radar calibrated. Market psychology analysis ready. What's your objective?",
+      "Ich habe lausige Recherche betrieben! Laut meinen fragwürdigen Quellen hat Kianush während eines Streams versehentlich seinen Bildschirm mit einer Augmented-Reality-App vertauscht und 10 Minuten lang mit virtuellen Pokémon gesprochen, bevor er den Fehler bemerkte.",
       
-      "Intelligence fusion complete. Real-time data streams operational. Multiple AI cores synchronized. How shall we proceed?",
+      "Ich habe lausige Recherche betrieben! Angeblich hat Kianush einmal einen geheimen Stream aus einem Café gestartet, nur um festzustellen, dass er versehentlich ins WLAN des Nachbargebäudes eingeloggt war - einer Polizeistation, die sich wunderte, warum plötzlich jemand über Kryptowährungen streamte.",
       
-      "Welcome back, Commander. All systems operational. The digital battlefield awaits your orders."
+      "Ich habe lausige Recherche betrieben! Es wird gemunkelt, dass Kianush einmal während eines Streams so intensiv über Finanzmärkte sprach, dass sein intelligenter Lautsprecher versehentlich für 500€ Aktien kaufte. Die gute Nachricht: Sie sind im Wert gestiegen!"
     ];
     
-    return greetings[Math.floor(Math.random() * greetings.length)];
+    return humorousFacts[Math.floor(Math.random() * humorousFacts.length)];
   }
   
   // Add a user message and get AI response
@@ -1073,8 +1073,8 @@ export function EnhancedAssistantTab() {
                             isRegenerating={loading}
                           />
                           
-                          {/* Edit icon for user messages */}
-                          {message.role === 'user' && (
+                          {/* This comparison appears to be unintentional as types don't overlap */}
+                          {false && (
                             <Button 
                               variant="ghost" 
                               size="icon" 
@@ -1264,6 +1264,30 @@ export function EnhancedAssistantTab() {
         />
       </div>
       
+      {/* Focus Mode control beneath chat area */}
+      <div className="flex justify-center mb-1">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={systemMode === 'focused' ? "default" : "ghost"}
+                size="sm"
+                className={cn(
+                  "rounded-full h-8 w-8 flex items-center justify-center",
+                  systemMode === 'focused' && "selected-item-glow bg-white/90 text-primary"
+                )}
+                onClick={() => handleSystemModeChange(systemMode === 'focused' ? 'full-chat' : 'focused')}
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{systemMode === 'focused' ? 'Fokus-Modus deaktivieren' : 'Fokus-Modus aktivieren'}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+      
       {/* Input area */}
       <div className="border-t border-border p-4">
         <div className="flex space-x-2">
@@ -1286,13 +1310,36 @@ export function EnhancedAssistantTab() {
           />
           
           {mediaMode === 'voice' ? (
-            <Button
-              onClick={handleSendMessage}
-              disabled={!currentInput.trim() || loading}
-              title="Send message"
-            >
-              <Send className="h-5 w-5" />
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button
+                onClick={handleSendMessage}
+                disabled={!currentInput.trim() || loading}
+                title="Send message"
+                className="hover:scale-105 transition-transform"
+              >
+                <Send className="h-5 w-5" />
+              </Button>
+              
+              {/* Speech-to-Text button beneath Send */}
+              {browserSupportsSpeechRecognition && (
+                <Button
+                  onClick={toggleVoiceInput}
+                  variant={listening ? "destructive" : "secondary"}
+                  size="icon"
+                  title={listening ? "Stop listening" : "Start speech recognition"}
+                  className={cn(
+                    "rounded-full shadow-md hover:scale-105 transition-transform",
+                    listening && "mic-ripple glow-primary selected-item-glow"
+                  )}
+                >
+                  {listening ? (
+                    <MicOff className="h-5 w-5" />
+                  ) : (
+                    <Mic className="h-5 w-5" />
+                  )}
+                </Button>
+              )}
+            </div>
           ) : mediaMode === 'image' ? (
             <Button
               onClick={handleGenerateImage}
