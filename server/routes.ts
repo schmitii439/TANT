@@ -5,7 +5,10 @@ import {
   insertMessageSchema, 
   insertNewsSchema, 
   insertFinancialDataSchema, 
+  insertCryptoDataSchema,
+  insertTradingSimulationSchema,
   insertOcrDataSchema,
+  insertSystemLearningSchema,
   insertSettingsSchema
 } from "@shared/schema";
 
@@ -78,6 +81,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(financialData);
     } catch (error) {
       res.status(400).json({ message: "Invalid financial data" });
+    }
+  });
+
+  // Crypto data API endpoints
+  app.get("/api/crypto", async (req, res) => {
+    try {
+      const category = req.query.category as string;
+      if (category) {
+        const data = await storage.getCryptoDataByCategory(category);
+        res.json(data);
+      } else {
+        const data = await storage.getAllCryptoData();
+        res.json(data);
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch crypto data" });
+    }
+  });
+
+  app.post("/api/crypto", async (req, res) => {
+    try {
+      const validatedData = insertCryptoDataSchema.parse(req.body);
+      const cryptoData = await storage.createCryptoData(validatedData);
+      res.status(201).json(cryptoData);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid crypto data" });
+    }
+  });
+
+  // Trading simulations API endpoints
+  app.get("/api/trading-simulations", async (req, res) => {
+    try {
+      const assetType = req.query.assetType as string;
+      const status = req.query.status as string;
+      
+      if (assetType) {
+        const data = await storage.getTradingSimulationsByAssetType(assetType);
+        res.json(data);
+      } else if (status) {
+        const data = await storage.getTradingSimulationsByStatus(status);
+        res.json(data);
+      } else {
+        const data = await storage.getAllTradingSimulations();
+        res.json(data);
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch trading simulations" });
+    }
+  });
+
+  app.post("/api/trading-simulations", async (req, res) => {
+    try {
+      const validatedData = insertTradingSimulationSchema.parse(req.body);
+      const simulation = await storage.createTradingSimulation(validatedData);
+      res.status(201).json(simulation);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid trading simulation data" });
+    }
+  });
+
+  app.put("/api/trading-simulations/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validatedData = insertTradingSimulationSchema.partial().parse(req.body);
+      const simulation = await storage.updateTradingSimulation(id, validatedData);
+      res.json(simulation);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to update trading simulation" });
+    }
+  });
+
+  // System learning API endpoints
+  app.get("/api/system-learning/:category", async (req, res) => {
+    try {
+      const category = req.params.category;
+      const data = await storage.getSystemLearningByCategory(category);
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch system learning data" });
+    }
+  });
+
+  app.post("/api/system-learning", async (req, res) => {
+    try {
+      const validatedData = insertSystemLearningSchema.parse(req.body);
+      const learning = await storage.createSystemLearning(validatedData);
+      res.status(201).json(learning);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid system learning data" });
     }
   });
 

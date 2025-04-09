@@ -1,0 +1,54 @@
+Write a full-stack PC application (local installable) that acts as an intelligent assistant with the following brutal features:
+Voice Assistant Interface:
+Supports microphone input and speech synthesis.
+Responds in logical, complete sentences with humor, sarcasm, and a conspiracy-aware tone. Optionally works entirely via keyboard.
+Has personality: sharp, witty, dark-humored, and skeptical but logical.
+
+AI Brain with Self-Upgrading Logic:
+Connects to APIs from Claude, OpenRouter, Grok, Llama, Gemini, DeepSeek, OpenAI, and Mistrial (via puter.ai).
+For each user request, selects and uses the best AI model dynamically based on context and gives a transparent reason why.
+Learns and improves after each conversation.
+
+Real-Time News & Politics Feed (Global):
+Pulls in real-time news from Grok and others.
+Prioritizes important world political updates, optionally summarized or in full detail.
+Includes instant news search with optional voice query.
+
+Stock Market Intelligence Tab:
+Shows real-time charts per stock.
+Gives 3 levels of strategy:
+"Safe Profit Strategy" for 1-month timeline
+"High-Risk Profit Blast" for 1-month timeline
+Long-term (5–10 years) and mid-term (1–5 years) strategies with and without leverage
+Simulates €200 virtual investments with real data and gives buy/sell decisions.
+Learns from all simulated trades (even bad ones) and analyzes losses/wins in detail.
+
+Crypto War Room Tab:
+Real-time tracking of crypto coins and memecoins.
+Detects breakout patterns.
+Provides strategy with/without leverage using knockouts, x-multipliers, etc.
+Simulates €5 virtual trades with real-time data and tracks performance.
+Every win/loss is deeply analyzed and used for system improvement.
+
+Learning Engine:
+ All virtual trades (stocks & crypto) are logged and evaluated.
+Generates insights from failed/successful strategies to self-train the system.
+Constantly improves prediction models and advice quality.
+
+Interface Requirements:
+Dark, clean UI with 4 main tabs: Chat / News / Stocks / Crypto
+Real-time voice input/output, text input support, extra search field for custom topics (e.g., "UFOs")
+Always show clear, honest risk levels and allow the user to toggle between short/detailed outputs
+
+Build this app like you’re designing the digital war-room of a rogue genius billionaire who plays 5D chess with the world economy.
+This is not a toy. This is a strategic weapon of wealth creation, wrapped in humor, logic, and raw firepower.
+Build the backend like a tank. Build the frontend like a Tesla cockpit. Elon Musk should feel threatened.
+
+
+1. Build the entire architecture step by step”
+
+2. Give me installable local version”
+
+3. Start with the chat interface + voice first, then stock tab, then crypto”
+
+4. Store all virtual investments in local SQLite and graph performance over time

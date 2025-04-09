@@ -45,7 +45,52 @@ export interface FinancialData {
   change: string;
   changePercent: string;
   analysis?: string;
+  historicalData?: any;
+  newsImpact?: any;
+  technicalIndicators?: any;
   timestamp: Date;
+}
+
+export interface CryptoData {
+  id: number;
+  symbol: string;
+  name: string;
+  price: number;
+  marketCap?: number;
+  volume24h?: number;
+  circulatingSupply?: number;
+  change24h?: number;
+  changePercent24h?: number;
+  high24h?: number;
+  low24h?: number;
+  allTimeHigh?: number;
+  allTimeHighDate?: Date;
+  category?: string;
+  analysis?: string;
+  sentiment?: string;
+  prediction?: any;
+  timestamp: Date;
+}
+
+export interface TradingSimulation {
+  id: number;
+  symbol: string;
+  assetType: string;
+  strategy: string;
+  entryPrice: number;
+  entryDate: Date;
+  exitPrice?: number;
+  exitDate?: Date;
+  initialInvestment: number;
+  finalValue?: number;
+  profitLoss?: number;
+  profitLossPercent?: number;
+  leverage?: number;
+  status: 'active' | 'completed' | 'cancelled';
+  rationale?: string;
+  performanceAnalysis?: string;
+  learningOutcomes?: any;
+  userFeedback?: string;
 }
 
 export interface OcrData {

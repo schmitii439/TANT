@@ -1,0 +1,129 @@
+Core Intelligence & AI Engine
+
+“Integrate the following AI models via puter.ai.chat() using puter.js (no API keys required):
+
+    DeepSeek (deepseek-chat, deepseek-reasoner)
+
+    Grok 2 (openrouter:x-ai/grok-2-1212)
+
+    GPT-4o, o1-mini, o3-mini (OpenAI via Puter.js)
+
+    Claude (claude-3-5-sonnet, claude-3-7-sonnet via OpenRouter)
+
+    LLaMA (llama-3.1-8b-instruct, llama-4-maverick)
+
+    Gemini (gemini-2.5-pro-exp, gemini-flash, gemini-pro)
+
+    Mistral (mistral-large-latest, mixtral-8x7b, mistralai/mistral-7b-instruct)
+
+Let the app dynamically analyze each request and automatically select the best-suited model for the task, based on logic, tone, or required depth. Include a fallback hierarchy if a model fails.”
+💬 Conversational UI
+
+“Create a chat interface with these functions:
+
+    Voice input (microphone enabled) and voice output
+
+    Option to use keyboard-only mode
+
+    Memory of previous messages for multi-turn interactions
+
+    Tone: witty, logical, skeptical, dark-humored, unbiased
+
+    Language support: English and German
+
+    Streamed responses for long answers
+
+    Optional: add a ‘Random Model Mode’ for chaotic inspiration”
+
+🗞️ News Intelligence System
+
+“Build a live news dashboard with the following:
+
+    Pull breaking news using Grok (via openrouter:x-ai/grok-2-1212)
+
+    Sort news by: Political impact (worldwide), Financial relevance, or Custom topics
+
+    Create filters: ‘Full Analysis’, ‘Short Summary’, ‘Voice Summary’
+
+    Add social media reactions panel (X.com, Reddit) for context
+
+    Allow direct search input and voice queries like ‘What’s happening in Germany?’ or ‘Show me all UFO news’
+
+    Use streamed responses when possible, and show real-time updates with source + timestamp for transparency.”
+
+📈 Stock Market Tab – “Financial Combat Unit”
+
+“Create a stock tracking system that shows:
+
+    Real-time stock charts for user-specified tickers
+
+    Simulate daily €200 investment per strategy with real-time prices
+
+    Strategy 1: Safe gain over 1 month
+
+    Strategy 2: High-risk growth over 1 month
+
+    Add medium-term (1–5 years) and long-term (5–10 years) strategies
+
+    Leverage simulation (knockouts, multipliers)
+
+    Store all virtual investments in a local SQLite database
+
+    Graph daily performance, profit/loss, entry/exit points
+
+    Each trade gets an automatic critical analysis and risk report”
+
+₿ Crypto Warfare Tab – “Real-Time Memecoin Radar”
+
+“Build a crypto intelligence dashboard with:
+
+    Real-time data from multiple free APIs via puter.ai.chat()
+
+    Detect breakout patterns for memecoins (up/down)
+
+    Virtual €5 leverage simulations with knockout/x-multiplier options
+
+    Show entry & exit timing, live market data, and predicted trend
+
+    Display market psychology (greed/fear, social buzz, etc.)
+
+    Analyze every trade decision after the fact (loss = learning)
+
+    Highlight: Do nothing if market shows no opportunity – silence is power.”
+
+📊 Data & Training Layer
+
+“Every virtual trade and AI decision must be:
+
+    Stored in local SQLite
+
+    Reviewed and compared by multiple models (e.g., GPT-4o vs Mistral)
+
+    Assigned a confidence level
+
+    Used to improve future decision-making via reinforcement-style logging
+
+    Include manual review & feedback option per trade or result
+
+    Visualize learning path in graphs (losses, wins, learned behaviors)”
+
+🎯 Bonus Features
+
+“Add these bonus touches:
+
+    Tab: ‘Custom Topics’ (User can search niche topics like 'UFOs', 'War Crimes', etc.)
+
+    Button: ‘Model Comparison Mode’ – show how different AIs answer the same question
+
+    Startup message: AI greets the user with a badass, cinematic intro
+
+    Mood system: Let user choose the assistant’s tone (Friendly, War-Commander, Sarcastic Oracle)
+
+    Emergency Alert Mode: if news contains keywords like ‘Nuclear’, ‘Crash’, ‘Collapse’ = red alert flashing tab”
+
+📦 Deployment
+
+“Package the entire app as a local Electron or PyQt executable for PC (no web hosting needed).
+Everything must run with local storage, local logs, and client-side API requests (via puter.js).
+Provide full installation instructions and build process.
+Keep system modular so I can update individual components.”
