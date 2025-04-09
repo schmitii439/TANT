@@ -1,4 +1,4 @@
-import { eq, desc, asc } from 'drizzle-orm';
+import { eq, desc, asc, sql } from 'drizzle-orm';
 import { db } from './db';
 import { 
   messages, InsertMessage, Message,
@@ -8,6 +8,9 @@ import {
   tradingSimulations, InsertTradingSimulation, TradingSimulation,
   ocrData, InsertOcrData, OcrData,
   systemLearning, InsertSystemLearning, SystemLearning,
+  refreshHistory, InsertRefreshHistory, RefreshHistory,
+  modelPerformance, InsertModelPerformance, ModelPerformance,
+  userSessions, InsertUserSession, UserSession,
   settings, InsertSettings, Settings
 } from '@shared/schema';
 
@@ -44,6 +47,23 @@ export interface IStorage {
   // System learning
   getSystemLearningByCategory(category: string): Promise<SystemLearning[]>;
   createSystemLearning(data: InsertSystemLearning): Promise<SystemLearning>;
+  
+  // Refresh history
+  getAllRefreshHistory(limit?: number): Promise<RefreshHistory[]>;
+  getRefreshHistoryById(id: number): Promise<RefreshHistory | undefined>;
+  createRefreshHistory(data: InsertRefreshHistory): Promise<RefreshHistory>;
+  
+  // Model performance
+  getModelPerformanceByModel(modelId: string, limit?: number): Promise<ModelPerformance[]>;
+  getModelPerformanceByTaskType(taskType: string, limit?: number): Promise<ModelPerformance[]>;
+  createModelPerformance(data: InsertModelPerformance): Promise<ModelPerformance>;
+  getModelRankings(taskType?: string): Promise<{ modelId: string, avgScore: number }[]>;
+  
+  // User sessions
+  getCurrentSession(): Promise<UserSession | undefined>;
+  startNewSession(data: InsertUserSession): Promise<UserSession>;
+  endSession(sessionId: number, data: Partial<InsertUserSession>): Promise<UserSession>;
+  getAllSessions(limit?: number): Promise<UserSession[]>;
   
   // Settings
   getSettings(): Promise<Settings>;
@@ -161,6 +181,103 @@ export class DatabaseStorage implements IStorage {
   async createSystemLearning(insertData: InsertSystemLearning): Promise<SystemLearning> {
     const [learning] = await db.insert(systemLearning).values(insertData).returning();
     return learning;
+  }
+  
+  // Refresh history methods
+  async getAllRefreshHistory(limit: number = 50): Promise<RefreshHistory[]> {
+    return await db.select().from(refreshHistory)
+      .orderBy(desc(refreshHistory.timestamp))
+      .limit(limit);
+  }
+  
+  async getRefreshHistoryById(id: number): Promise<RefreshHistory | undefined> {
+    const [record] = await db.select().from(refreshHistory)
+      .where(eq(refreshHistory.id, id));
+    return record;
+  }
+  
+  async createRefreshHistory(insertData: InsertRefreshHistory): Promise<RefreshHistory> {
+    const [record] = await db.insert(refreshHistory).values(insertData).returning();
+    return record;
+  }
+  
+  // Model performance methods
+  async getModelPerformanceByModel(modelId: string, limit: number = 20): Promise<ModelPerformance[]> {
+    return await db.select().from(modelPerformance)
+      .where(eq(modelPerformance.modelId, modelId))
+      .orderBy(desc(modelPerformance.timestamp))
+      .limit(limit);
+  }
+  
+  async getModelPerformanceByTaskType(taskType: string, limit: number = 20): Promise<ModelPerformance[]> {
+    return await db.select().from(modelPerformance)
+      .where(eq(modelPerformance.taskType, taskType))
+      .orderBy(desc(modelPerformance.timestamp))
+      .limit(limit);
+  }
+  
+  async createModelPerformance(insertData: InsertModelPerformance): Promise<ModelPerformance> {
+    const [record] = await db.insert(modelPerformance).values(insertData).returning();
+    return record;
+  }
+  
+  async getModelRankings(taskType?: string): Promise<{ modelId: string, avgScore: number }[]> {
+    // Handle the two cases separately to avoid type issues
+    if (taskType) {
+      return await db.select({
+        modelId: modelPerformance.modelId,
+        avgScore: sql<number>`avg(${modelPerformance.overallScore})`.as("avgScore")
+      })
+      .from(modelPerformance)
+      .where(eq(modelPerformance.taskType, taskType))
+      .groupBy(modelPerformance.modelId)
+      .orderBy(desc(sql`"avgScore"`));
+    } else {
+      return await db.select({
+        modelId: modelPerformance.modelId,
+        avgScore: sql<number>`avg(${modelPerformance.overallScore})`.as("avgScore")
+      })
+      .from(modelPerformance)
+      .groupBy(modelPerformance.modelId)
+      .orderBy(desc(sql`"avgScore"`));
+    }
+  }
+  
+  // User session methods
+  async getCurrentSession(): Promise<UserSession | undefined> {
+    const [session] = await db.select().from(userSessions)
+      .where(sql`${userSessions.endTime} IS NULL`)
+      .orderBy(desc(userSessions.startTime))
+      .limit(1);
+    
+    return session;
+  }
+  
+  async startNewSession(insertData: InsertUserSession): Promise<UserSession> {
+    const [session] = await db.insert(userSessions).values({
+      ...insertData,
+      startTime: new Date()
+    }).returning();
+    
+    return session;
+  }
+  
+  async endSession(sessionId: number, data: Partial<InsertUserSession>): Promise<UserSession> {
+    const [session] = await db.update(userSessions)
+      .set({
+        ...data,
+        endTime: new Date()
+      })
+      .where(eq(userSessions.id, sessionId))
+      .returning();
+    
+    return session;
+  }
+  
+  async getAllSessions(limit: number = 20): Promise<UserSession[]> {
+    return await db.select().from(userSessions)
+      .orderBy(desc(userSessions.startTime))
+      .limit(limit);
   }
   
   // Settings methods

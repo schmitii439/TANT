@@ -218,6 +218,102 @@ export const insertSystemLearningSchema = createInsertSchema(systemLearning).pic
   dataPoints: true,
 });
 
+// Refresh history table to track all data refresh operations
+export const refreshHistory = pgTable("refresh_history", {
+  id: serial("id").primaryKey(),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  sources: jsonb("sources").notNull(), // JSON object with details about each data source
+  status: text("status").notNull(), // 'success', 'partial', or 'failed'
+  elapsedTime: integer("elapsed_time"), // Time taken in milliseconds
+  userInitiated: boolean("user_initiated").default(true),
+  triggeredBy: text("triggered_by"), // Component or function that initiated the refresh
+  metadata: jsonb("metadata"), // Additional metadata about the refresh
+}, (table) => {
+  return {
+    timestampIdx: index("refresh_history_timestamp_idx").on(table.timestamp),
+    statusIdx: index("refresh_history_status_idx").on(table.status),
+  }
+});
+
+export const insertRefreshHistorySchema = createInsertSchema(refreshHistory).pick({
+  timestamp: true,
+  sources: true,
+  status: true,
+  elapsedTime: true,
+  userInitiated: true,
+  triggeredBy: true,
+  metadata: true,
+});
+
+// Model performance metrics table for the Meta-Model Brain
+export const modelPerformance = pgTable("model_performance", {
+  id: serial("id").primaryKey(),
+  modelId: text("model_id").notNull(), // ID of the AI model
+  taskType: text("task_type").notNull(), // Type of task (e.g., 'conversation', 'analysis', 'prediction')
+  promptContext: text("prompt_context"), // Context of the prompt
+  inputLength: integer("input_length"), // Length of the input in tokens/characters
+  outputLength: integer("output_length"), // Length of the output in tokens/characters
+  responseTime: integer("response_time"), // Time taken to generate response in ms
+  accuracy: doublePrecision("accuracy"), // Assessed accuracy (0-1) if applicable
+  relevance: doublePrecision("relevance"), // Assessed relevance (0-1)
+  helpfulness: doublePrecision("helpfulness"), // Assessed helpfulness (0-1)
+  creativity: doublePrecision("creativity"), // Assessed creativity (0-1)
+  overallScore: doublePrecision("overall_score"), // Overall performance score (0-1)
+  userFeedback: text("user_feedback"), // Optional user feedback
+  metadata: jsonb("metadata"), // Additional metadata
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+}, (table) => {
+  return {
+    modelIdIdx: index("model_performance_model_id_idx").on(table.modelId),
+    taskTypeIdx: index("model_performance_task_type_idx").on(table.taskType),
+    timestampIdx: index("model_performance_timestamp_idx").on(table.timestamp),
+  }
+});
+
+export const insertModelPerformanceSchema = createInsertSchema(modelPerformance).pick({
+  modelId: true,
+  taskType: true,
+  promptContext: true,
+  inputLength: true,
+  outputLength: true,
+  responseTime: true,
+  accuracy: true,
+  relevance: true,
+  helpfulness: true,
+  creativity: true,
+  overallScore: true,
+  userFeedback: true,
+  metadata: true,
+});
+
+// User session history table
+export const userSessions = pgTable("user_sessions", {
+  id: serial("id").primaryKey(),
+  startTime: timestamp("start_time").defaultNow().notNull(),
+  endTime: timestamp("end_time"),
+  activeTabsLog: jsonb("active_tabs_log"), // Log of tabs used during session
+  queriesLog: jsonb("queries_log"), // All queries made during session
+  actionsLog: jsonb("actions_log"), // User actions (clicks, trades, etc.)
+  refreshesLog: jsonb("refreshes_log"), // Data refreshes during session
+  aiInteractionsLog: jsonb("ai_interactions_log"), // AI interactions during session
+  sessionMetadata: jsonb("session_metadata"), // Additional metadata
+}, (table) => {
+  return {
+    startTimeIdx: index("user_sessions_start_time_idx").on(table.startTime),
+  }
+});
+
+export const insertUserSessionSchema = createInsertSchema(userSessions).pick({
+  startTime: true,
+  endTime: true,
+  activeTabsLog: true,
+  queriesLog: true,
+  actionsLog: true,
+  refreshesLog: true,
+  aiInteractionsLog: true,
+  sessionMetadata: true,
+});
+
 // Settings table
 export const settings = pgTable("settings", {
   id: serial("id").primaryKey(),
@@ -274,3 +370,12 @@ export type SystemLearning = typeof systemLearning.$inferSelect;
 
 export type InsertSettings = z.infer<typeof insertSettingsSchema>;
 export type Settings = typeof settings.$inferSelect;
+
+export type InsertRefreshHistory = z.infer<typeof insertRefreshHistorySchema>;
+export type RefreshHistory = typeof refreshHistory.$inferSelect;
+
+export type InsertModelPerformance = z.infer<typeof insertModelPerformanceSchema>;
+export type ModelPerformance = typeof modelPerformance.$inferSelect;
+
+export type InsertUserSession = z.infer<typeof insertUserSessionSchema>;
+export type UserSession = typeof userSessions.$inferSelect;

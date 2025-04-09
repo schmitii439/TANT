@@ -1,0 +1,87 @@
+✅ Prompt 1: Master Refresh Button
+
+    “Implement a global refresh button available on every tab. When clicked, this should:
+
+        Immediately fetch and update all real-time data from all integrated APIs (news, stocks, crypto, custom searches).
+
+        Prioritize and display the most relevant and urgent information first.
+
+        Save all raw and filtered data (timestamped) into a local SQLite database.”**
+
+🧠 Prompt 2: Historical Session Storage
+
+    **“Save every refresh result permanently to a local database:
+
+        Use timestamped entries to allow time-based lookback
+
+        Log source, model used, content type (news, stock, crypto, AI output, etc.)
+
+        Include user actions taken during that session (e.g., trades, searches, queries)”**
+
+📂 Prompt 3: Archive Reader + Timeline Mode
+
+    **“Build a ‘History’ tab that displays previous sessions in a timeline format.
+    Allow users to select any previous day or refresh to:
+
+        View what data was received
+
+        What decisions were made
+
+        What model handled what
+
+        What predictions were right/wrong”**
+
+📊 Prompt 4: OverTime Analysis Mode
+
+    **“Develop an ‘OverTime Analysis’ tab that automatically aggregates and analyzes:
+
+        All historical news headlines and sentiment (per topic or region)
+
+        All simulated trades and investment outcomes (per stock/crypto)
+
+        AI performance per task (accuracy, helpfulness, creativity)
+
+        Trends in user behavior and queries
+        Display this data with graphs, metrics, and smart suggestions.”**
+
+🧬 Prompt 5: Evolving Meta-Model Brain
+
+    **“Create a Meta-Model Engine that learns from all logged sessions:
+
+        Analyze every past response from each model used (Claude, GPT, Grok, etc.)
+
+        Rank responses by success, logic, usefulness
+
+        Gradually build an adaptive scoring system to always prefer the most effective model for each use case
+
+        Save this model ranking and refine it after every session”**
+
+💡 Prompt 6: Auto-Learning Loop
+
+    **“After each user session or refresh, trigger a background process that:
+
+        Compares predictions vs. reality (e.g., did the stock go up?)
+
+        Stores a win/loss/failure analysis per recommendation
+
+        Uses that data to update both:
+        → the AI model selection logic
+        → the forecasting logic (trade, trend, news relevance)”**
+
+🧠🧠 Prompt 7: “Become the Smartest AI” Mode
+
+    **“Combine all stored data, all past model outputs, and real-time inputs to:
+
+        Build a unified logic core that can summarize everything
+
+        Cross-reference new inputs with all historical sessions
+
+        Provide the most context-aware, data-backed, logic-enhanced answer possible
+
+        This is the app’s ‘God Mode’: the AI that remembers everything and improves forever”**
+
+☠️ Bonus Prompt: Persistent Global Memory System
+
+    “Ensure that all long-term memory (user queries, data, models used, outcomes) is written to local storage or exported optionally for backup and reuse across devices.
+    Allow re-importing and syncing old memory into a new app install for continuity.”
+

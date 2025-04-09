@@ -6,6 +6,8 @@ import { EnhancedAssistantTab } from "@/components/EnhancedAssistantTab";
 import { NewsTab } from "@/components/NewsTab";
 import { StocksTab } from "@/components/StocksTab";
 import { CryptoTab } from "@/components/CryptoTab";
+import { HistoryTab } from "@/components/HistoryTab";
+import { AnalysisTab } from "@/components/AnalysisTab";
 import { ToolsTab } from "@/components/ToolsTab";
 import { VoiceCommandButton } from "@/components/VoiceCommandButton";
 import { useDarkMode } from "@/hooks/useDarkMode";
@@ -61,6 +63,8 @@ export default function Home() {
         {activeTab === "news" && <NewsTab />}
         {activeTab === "stocks" && <StocksTab />}
         {activeTab === "crypto" && <CryptoTab />}
+        {activeTab === "history" && <HistoryTab />}
+        {activeTab === "analysis" && <AnalysisTab />}
         {activeTab === "tools" && <ToolsTab />}
       </main>
       

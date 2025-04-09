@@ -9,6 +9,9 @@ import {
   insertTradingSimulationSchema,
   insertOcrDataSchema,
   insertSystemLearningSchema,
+  insertRefreshHistorySchema,
+  insertModelPerformanceSchema,
+  insertUserSessionSchema,
   insertSettingsSchema
 } from "@shared/schema";
 
@@ -210,6 +213,115 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(settings);
     } catch (error) {
       res.status(400).json({ message: "Invalid settings data" });
+    }
+  });
+  
+  // Refresh history API endpoints
+  app.get("/api/refresh-history", async (req, res) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 50;
+      const history = await storage.getAllRefreshHistory(limit);
+      res.json(history);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch refresh history" });
+    }
+  });
+  
+  app.get("/api/refresh-history/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const history = await storage.getRefreshHistoryById(id);
+      if (!history) {
+        return res.status(404).json({ message: "Refresh history not found" });
+      }
+      res.json(history);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch refresh history" });
+    }
+  });
+  
+  app.post("/api/refresh-history", async (req, res) => {
+    try {
+      const validatedData = insertRefreshHistorySchema.parse(req.body);
+      const history = await storage.createRefreshHistory(validatedData);
+      res.status(201).json(history);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid refresh history data" });
+    }
+  });
+  
+  // Model performance API endpoints
+  app.get("/api/model-performance", async (req, res) => {
+    try {
+      const modelId = req.query.modelId as string;
+      const taskType = req.query.taskType as string;
+      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 20;
+      
+      let data;
+      if (modelId) {
+        data = await storage.getModelPerformanceByModel(modelId, limit);
+      } else if (taskType) {
+        data = await storage.getModelPerformanceByTaskType(taskType, limit);
+      } else {
+        // Return rankings by default
+        data = await storage.getModelRankings();
+      }
+      
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch model performance data" });
+    }
+  });
+  
+  app.post("/api/model-performance", async (req, res) => {
+    try {
+      const validatedData = insertModelPerformanceSchema.parse(req.body);
+      const performance = await storage.createModelPerformance(validatedData);
+      res.status(201).json(performance);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid model performance data" });
+    }
+  });
+  
+  // User sessions API endpoints
+  app.get("/api/sessions", async (req, res) => {
+    try {
+      const current = req.query.current === 'true';
+      const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 20;
+      
+      if (current) {
+        const session = await storage.getCurrentSession();
+        if (!session) {
+          return res.status(404).json({ message: "No active session found" });
+        }
+        res.json(session);
+      } else {
+        const sessions = await storage.getAllSessions(limit);
+        res.json(sessions);
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch sessions" });
+    }
+  });
+  
+  app.post("/api/sessions", async (req, res) => {
+    try {
+      const validatedData = insertUserSessionSchema.parse(req.body);
+      const session = await storage.startNewSession(validatedData);
+      res.status(201).json(session);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid session data" });
+    }
+  });
+  
+  app.put("/api/sessions/:id/end", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validatedData = insertUserSessionSchema.partial().parse(req.body);
+      const session = await storage.endSession(id, validatedData);
+      res.json(session);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to end session" });
     }
   });
 

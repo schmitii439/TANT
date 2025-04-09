@@ -1,4 +1,4 @@
-export type TabId = 'assistant' | 'news' | 'stocks' | 'crypto' | 'tools';
+export type TabId = 'assistant' | 'news' | 'stocks' | 'crypto' | 'history' | 'analysis' | 'tools';
 
 export interface Tab {
   id: TabId;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Tab, TabId } from '@/types';
-import { Bot, Newspaper, TrendingUp, Bitcoin, Wrench } from 'lucide-react';
+import { Bot, Newspaper, TrendingUp, Bitcoin, Wrench, History, BarChart2 } from 'lucide-react';
 
 interface TabNavigationProps {
   activeTab: TabId;
@@ -13,6 +13,8 @@ export function TabNavigation({ activeTab, setActiveTab }: TabNavigationProps) {
     { id: 'news', name: 'News', icon: 'newspaper' },
     { id: 'stocks', name: 'Stocks', icon: 'trending-up' },
     { id: 'crypto', name: 'Crypto', icon: 'bitcoin' },
+    { id: 'history', name: 'History', icon: 'history' },
+    { id: 'analysis', name: 'Analysis', icon: 'bar-chart' },
     { id: 'tools', name: 'Tools', icon: 'wrench' }
   ]);
 
@@ -26,6 +28,10 @@ export function TabNavigation({ activeTab, setActiveTab }: TabNavigationProps) {
         return <TrendingUp className="h-5 w-5" />;
       case 'bitcoin':
         return <Bitcoin className="h-5 w-5" />;
+      case 'history':
+        return <History className="h-5 w-5" />;
+      case 'bar-chart':
+        return <BarChart2 className="h-5 w-5" />;
       case 'wrench':
         return <Wrench className="h-5 w-5" />;
       default:
