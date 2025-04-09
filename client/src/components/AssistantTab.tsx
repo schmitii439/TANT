@@ -17,6 +17,7 @@ export function AssistantTab() {
   const [aiModels, setAIModels] = useState<AIModel[]>([
     { id: 'claude-3-7-sonnet', name: 'Claude 3.7 Sonnet', provider: 'Anthropic' },
     { id: 'google/gemini-2.5-pro-exp-03-25:free', name: 'Gemini 2.5 Pro', provider: 'Google' },
+    { id: 'openrouter:x-ai/grok-2-1212', name: 'Grok 2', provider: 'xAI' },
     { id: 'deepseek-chat', name: 'DeepSeek Chat', provider: 'DeepSeek' },
     { id: 'meta-llama/llama-4-maverick', name: 'Llama 4 Maverick', provider: 'Meta' }
   ]);

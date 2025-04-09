@@ -1,0 +1,1567 @@
+DeepSeek:
+_______________________________________________________________________________________________________
+
+Puter.js works without any API keys or sign-ups. To start using Puter.js, include the following script tag in your HTML file, either in the <head> or <body> section:
+
+<script src="https://js.puter.com/v2/"></script>
+You're now ready to use Puter.js for free access to DeepSeek capabilities. No API keys or sign-ups are required.
+
+Example 1Basic Text Generation with DeepSeek Chat (DeepSeek V3)
+Here's a simple example showing how to generate text using DeepSeek Chat (DeepSeek V3):
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        puter.ai.chat("Explain quantum entanglement in simple terms", {
+            model: 'deepseek-chat'
+        }).then(response => {
+            document.write(response.message.content);
+        });
+    </script>
+</body>
+</html>
+Using the puter.ai.chat() function, you can generate text using DeepSeek Chat.
+
+Example 2Complex Reasoning with DeepSeek Reasoner (DeepSeek R1)
+DeepSeek Reasoner (DeepSeek R1) is particularly good at complex problem-solving and step-by-step analysis:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        puter.ai.chat(
+            "What would be the environmental impact of replacing all cars with electric vehicles? Consider both positive and negative effects.", 
+            {
+                model: 'deepseek-reasoner'
+            }
+        ).then(response => {
+            document.write(response.message.content);
+        });
+    </script>
+</body>
+</html>
+Example 3Streaming Responses
+For longer responses, use streaming to get results in real-time:
+
+<html>
+<body>
+    <div id="output"></div>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        async function streamResponse() {
+            const outputDiv = document.getElementById('output');
+            
+            // DeepSeek Chat with streaming
+            outputDiv.innerHTML += '<h2>DeepSeek Chat Response:</h2>';
+            const chatResponse = await puter.ai.chat(
+                "Explain the significance of dark matter in the universe", 
+                {
+                    model: 'deepseek-chat',
+                    stream: true
+                }
+            );
+            
+            for await (const part of chatResponse) {
+                if (part?.text) {
+                    outputDiv.innerHTML += part.text;
+                }
+            }
+            
+            // DeepSeek Reasoner with streaming
+            outputDiv.innerHTML += '<h2>DeepSeek Reasoner Response:</h2>';
+            const reasonerResponse = await puter.ai.chat(
+                "Explain the significance of dark matter in the universe", 
+                {
+                    model: 'deepseek-reasoner',
+                    stream: true
+                }
+            );
+            
+            for await (const part of reasonerResponse) {
+                if (part?.text) {
+                    outputDiv.innerHTML += part.text;
+                }
+            }
+        }
+
+        streamResponse();
+    </script>
+</body>
+</html>
+Example 4Comparing Models
+Here's how to compare responses from both DeepSeek models:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+    (async () => {
+        // DeepSeek Chat
+        const chat_resp = await puter.ai.chat(
+            'Solve this puzzle: If you have 9 coins and one is counterfeit (lighter), how can you identify it with just 2 weighings on a balance scale?',
+            {model: 'deepseek-chat', stream: true}
+        );
+        document.write('<h2>DeepSeek Chat Solution:</h2>');
+        for await (const part of chat_resp) {
+            if (part?.text) {
+                document.write(part.text.replaceAll('\n', '<br>'));
+            }
+        }
+
+        // DeepSeek Reasoner
+        const reasoner_resp = await puter.ai.chat(
+            'Solve this puzzle: If you have 9 coins and one is counterfeit (lighter), how can you identify it with just 2 weighings on a balance scale?',
+            {model: 'deepseek-reasoner', stream: true}
+        );
+        document.write('<h2>DeepSeek Reasoner Solution:</h2>');
+        for await (const part of reasoner_resp) {
+            if (part?.text) {
+                document.write(part.text.replaceAll('\n', '<br>'));
+            }
+        }
+    })();
+    </script>
+</body>
+</html>
+Best Practices
+Use streaming for longer responses to provide better user experience
+Consider the specific strengths of each model when choosing which to use
+Handle errors gracefully and provide feedback during processing
+Use appropriate error handling for network issues or API failures
+Consider implementing retry logic for failed requests
+That's it! You now have free access to DeepSeek's powerful language models using Puter.js. This allows you to add sophisticated AI capabilities to your web applications without worrying about API keys or usage limits.
+
+
+Grok:
+_______________________________________________________________________________________________________
+
+Just include the Puter.js library in your HTML file:
+
+<script src="https://js.puter.com/v2/"></script>
+Example 1Basic Grok 2 usage
+To use Grok 2, you'll use the puter.ai.chat() function with the model parameter set to openrouter:x-ai/grok-2-1212. Here's a basic example:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        // Chat with Grok 2
+        puter.ai.chat(
+            "Explain quantum computing in a witty and engaging way.",
+            {model: 'openrouter:x-ai/grok-2-1212'}
+        ).then(response => {
+            puter.print(response.message.content);
+        });
+    </script>
+</body>
+</html>
+Example 2Streaming responses
+For a more interactive experience, you can stream the responses from Grok as they're generated:
+
+<html>
+<body>
+    <div id="response"></div>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        (async () => {
+            const response = await puter.ai.chat(
+                "Tell me a funny story about artificial intelligence.",
+                {
+                    model: 'openrouter:x-ai/grok-2-1212',
+                    stream: true
+                }
+            );
+
+            const responseDiv = document.getElementById('response');
+            for await (const part of response) {
+                responseDiv.innerHTML += part.text;
+            }
+        })();
+    </script>
+</body>
+</html>
+Example 3Interactive Q&A interface
+Here's how to create an engaging Q&A interface using Grok 2:
+
+<html>
+<body>
+    <div style="max-width: 800px; margin: 20px auto; font-family: Arial, sans-serif;">
+        <h1>Ask Grok Anything</h1>
+        <div id="chat-container" style="margin: 20px 0;">
+            <div id="messages" style="height: 400px; border: 1px solid #ccc; overflow-y: auto; padding: 20px; margin-bottom: 20px; border-radius: 8px;"></div>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="user-input" 
+                    style="flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" 
+                    placeholder="Ask me anything...">
+                <button onclick="askQuestion()" 
+                    style="padding: 10px 20px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                    Ask
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        const messagesDiv = document.getElementById('messages');
+        const userInput = document.getElementById('user-input');
+
+        async function askQuestion() {
+            const question = userInput.value;
+            if (!question) return;
+
+            // Add user question
+            messagesDiv.innerHTML += `
+                <div style="margin-bottom: 15px;">
+                    <strong style="color: #0066cc;">You:</strong><br>
+                    ${question}
+                </div>
+            `;
+            userInput.value = '';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            // Add Grok's response container
+            messagesDiv.innerHTML += `
+                <div style="margin-bottom: 15px;">
+                    <strong style="color: #009933;">Grok:</strong><br>
+                    <span id="grok-response"></span>
+                </div>
+            `;
+            const responseSpan = document.getElementById('grok-response');
+
+            // Get streaming response from Grok
+            const response = await puter.ai.chat(question, {
+                model: 'openrouter:x-ai/grok-2-1212',
+                stream: true
+            });
+
+            for await (const part of response) {
+                responseSpan.innerHTML += part.text;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        }
+
+        // Allow sending message with Enter key
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') askQuestion();
+        });
+
+        // Add initial greeting
+        window.onload = () => {
+            messagesDiv.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <strong style="color: #009933;">Grok:</strong><br>
+                    Hi there! I'm Grok, your witty AI assistant. I'm here to help you with anything you'd like to know about. What's on your mind?
+                </div>
+            `;
+        };
+    </script>
+</body>
+</html>
+Example 4Multi-turn conversations
+Grok excels at maintaining context in conversations. Here's how to implement a context-aware chat:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        // Keep track of conversation history
+        let conversationHistory = [];
+
+        async function continueConversation(userMessage) {
+            // Add user message to history
+            conversationHistory.push({
+                role: "user",
+                content: userMessage
+            });
+
+            // Get response from Grok
+            const response = await puter.ai.chat(conversationHistory, {
+                model: 'openrouter:x-ai/grok-2-1212'
+            });
+
+            // Add Grok's response to history
+            conversationHistory.push({
+                role: "assistant",
+                content: response.message.content
+            });
+
+            return response.message.content;
+        }
+
+        // Example usage
+        async function demonstrateConversation() {
+            let response;
+            
+            response = await continueConversation("What's the most interesting thing about space?");
+            document.body.innerHTML += `<p><strong>You:</strong> What's the most interesting thing about space?</p>`;
+            document.body.innerHTML += `<p><strong>Grok:</strong> ${response}</p>`;
+
+            response = await continueConversation("Tell me more about that!");
+            document.body.innerHTML += `<p><strong>You:</strong> Tell me more about that!</p>`;
+            document.body.innerHTML += `<p><strong>Grok:</strong> ${response}</p>`;
+        }
+
+        demonstrateConversation();
+    </script>
+</body>
+</html>
+Example 5Using Grok for creative writing
+Grok is particularly good at creative and engaging writing. Here's an example of using it for story generation:
+
+<html>
+<body>
+    <div style="max-width: 800px; margin: 20px auto; font-family: Arial, sans-serif;">
+        <h1>Story Generator</h1>
+        <div style="margin: 20px 0;">
+            <h3>Story Parameters</h3>
+            <input type="text" id="genre" placeholder="Genre (e.g., sci-fi, fantasy)" style="width: 100%; margin-bottom: 10px; padding: 5px;">
+            <input type="text" id="theme" placeholder="Theme (e.g., friendship, adventure)" style="width: 100%; margin-bottom: 10px; padding: 5px;">
+            <input type="text" id="setting" placeholder="Setting (e.g., space station, medieval castle)" style="width: 100%; margin-bottom: 10px; padding: 5px;">
+            <button onclick="generateStory()" style="padding: 10px 20px;">Generate Story</button>
+        </div>
+        <div id="story" style="white-space: pre-wrap; line-height: 1.6;"></div>
+    </div>
+
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        async function generateStory() {
+            const genre = document.getElementById('genre').value || 'sci-fi';
+            const theme = document.getElementById('theme').value || 'adventure';
+            const setting = document.getElementById('setting').value || 'space station';
+
+            const prompt = `
+Write a short story with the following parameters:
+- Genre: ${genre}
+- Theme: ${theme}
+- Setting: ${setting}
+
+Make it engaging, witty, and memorable. Include some clever dialogue and unexpected twists.`;
+
+            const storyDiv = document.getElementById('story');
+            storyDiv.innerHTML = 'Generating your story...';
+
+            const response = await puter.ai.chat(prompt, {
+                model: 'openrouter:x-ai/grok-2-1212',
+                stream: true
+            });
+
+            storyDiv.innerHTML = '';
+            for await (const part of response) {
+                storyDiv.innerHTML += part.text;
+            }
+        }
+    </script>
+</body>
+</html>
+Grok 2 through Puter.js provides a unique and engaging AI experience, combining technical capability with wit and creativity. Whether you're building a chatbot, a creative writing tool, or any other AI-powered application, Grok can help make it more engaging and fun for users.
+
+
+OpenAI:
+_______________________________________________________________________________________________________
+
+You can use puter.js without any API keys or sign-ups. To start using Puter.js, include the following script tag in your HTML file, either in the <head> or <body> section:
+
+<script src="https://js.puter.com/v2/"></script>
+Nothing else is required to start using Puter.js for free access to GPT-4o and DALL-E capabilities.
+
+Example 1Use GPT-4o for text generation
+To generate text using GPT-4o, use the puter.ai.chat() function:
+
+puter.ai.chat("What are the benefits of exercise?")
+    .then(response => {
+        puter.print(response);
+    });
+Full code example:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        puter.ai.chat("What are the benefits of exercise?")
+            .then(response => {
+                puter.print(response);
+            });
+    </script>
+</body>
+</html>
+Example 2Generate images with DALL-E 3
+To create images using DALL-E 3, use the puter.ai.txt2img() function:
+
+puter.ai.txt2img("A futuristic cityscape at night")
+    .then(imageElement => {
+        document.body.appendChild(imageElement);
+    });
+Full code example:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        puter.ai.txt2img("A futuristic cityscape at night")
+            .then(imageElement => {
+                document.body.appendChild(imageElement);
+            });
+    </script>
+</body>
+</html>
+Example 3Analyze images with GPT-4o Vision
+To analyze images using GPT-4o Vision, provide an image URL to puter.ai.chat():
+
+puter.ai.chat(
+    "What do you see in this image?", 
+    "https://assets.puter.site/doge.jpeg"
+)
+.then(response => {
+    puter.print(response);
+});
+Full code example:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        puter.ai.chat(
+            "What do you see in this image?", 
+            "https://assets.puter.site/doge.jpeg"
+        )
+        .then(response => {
+            puter.print(response);
+        });
+    </script>
+</body>
+</html>
+Example 4Use different OpenAI models
+You can specify different OpenAI models using the model parameter, for example o3-mini, o1-mini, or gpt-4o:
+
+// Using o3-mini model
+puter.ai.chat(
+    "Write a short poem about coding",
+    { model: "o3-mini" }
+).then(response => {
+    puter.print(response);
+});
+
+// Using o1-mini model
+puter.ai.chat(
+    "Write a short poem about coding",
+    { model: "o1-mini" }
+).then(response => {
+    puter.print(response);
+});
+
+// Using 4o model
+puter.ai.chat(
+    "Write a short poem about coding",
+    { model: "gpt-4o" }
+).then(response => {
+    puter.print(response);
+});
+Full code example:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        // Using o3-mini model
+        puter.ai.chat(
+            "Write a short poem about coding",
+            { model: "o3-mini" }
+        ).then(response => {
+            puter.print("<h2>Using o3-mini model</h2>");
+            puter.print(response);
+        });
+
+        // Using o1-mini model
+        puter.ai.chat(
+            "Write a short poem about coding",
+            { model: "o1-mini" }
+        ).then(response => {
+            puter.print("<h2>Using o1-mini model</h2>");
+            puter.print(response);
+        });
+
+        // Using 4o model
+        puter.ai.chat(
+            "Write a short poem about coding",
+            { model: "gpt-4o" }
+        ).then(response => {
+            puter.print("<h2>Using gpt-4o model</h2>");
+            puter.print(response);
+        });
+    </script>
+</body>
+</html>
+Example 5Stream responses for longer queries
+For longer responses, use streaming to get results in real-time:
+
+async function streamResponse() {
+    const response = await puter.ai.chat(
+        "Explain the theory of relativity in detail", 
+        {stream: true}
+    );
+    
+    for await (const part of response) {
+        puter.print(part?.text);
+    }
+}
+
+streamResponse();
+Full code example:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        async function streamResponse() {
+            const response = await puter.ai.chat(
+                "Explain the theory of relativity in detail", 
+                {stream: true}
+            );
+            
+            for await (const part of response) {
+                puter.print(part?.text);
+            }
+        }
+
+        streamResponse();
+    </script>
+</body>
+</html>
+That's it! You now have a free alternative to the OpenAI API using Puter.js. This allows you to access GPT-4o, o3-mini, o1-mini, DALL-E, ... capabilities without needing an API key or a backend. True serverless AI!
+
+
+Mistral:
+_______________________________________________________________________________________________________
+
+None! You just need to include the Puter.js library in your HTML file:
+
+<script src="https://js.puter.com/v2/"></script>
+Using Mistral Large
+To use Mistral Large, you'll use the puter.ai.chat() function with the model parameter set to 'mistral-large-latest'. Here's a basic example:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        // Chat with Mistral Large
+        puter.ai.chat(
+            "What are the key differences between classical and quantum computing?",
+            {model: 'mistral-large-latest'}
+        ).then(response => {
+            document.body.innerHTML = response.text;
+        });
+    </script>
+</body>
+</html>
+Streaming Responses
+For a more interactive experience, you can stream the responses from Mistral Large as they're generated:
+
+<html>
+<body>
+    <div id="response"></div>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        (async () => {
+            const response = await puter.ai.chat(
+                "Explain the concept of quantum entanglement.",
+                {
+                    model: 'mistral-large-latest',
+                    stream: true
+                }
+            );
+
+            const responseDiv = document.getElementById('response');
+            for await (const part of response) {
+                responseDiv.innerHTML += part.text;
+            }
+        })();
+    </script>
+</body>
+</html>
+Building a Simple Chat Interface
+Here's how to create a simple chat interface using Mistral Large:
+
+<html>
+<body>
+    <div id="chat-container" style="max-width: 600px; margin: 20px auto;">
+        <div id="messages" style="height: 400px; border: 1px solid #ccc; overflow-y: auto; padding: 10px; margin-bottom: 10px;"></div>
+        <div style="display: flex; gap: 10px;">
+            <input type="text" id="user-input" style="flex-grow: 1; padding: 5px;" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        const messagesDiv = document.getElementById('messages');
+        const userInput = document.getElementById('user-input');
+
+        async function sendMessage() {
+            const message = userInput.value;
+            if (!message) return;
+
+            // Add user message
+            messagesDiv.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
+            userInput.value = '';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            // Add AI response
+            messagesDiv.innerHTML += `<p><strong>AI:</strong> <span id="ai-response"></span></p>`;
+            const responseSpan = document.getElementById('ai-response');
+            
+            const response = await puter.ai.chat(message, {
+                model: 'mistral-large-latest',
+                stream: true
+            });
+
+            for await (const part of response) {
+                responseSpan.innerHTML += part.text;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        }
+
+        // Allow sending message with Enter key
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
+Mistral Large through Puter.js provides a powerful, free, and easy-to-use AI solution for your web applications. With features like streaming responses and function calling, you can create sophisticated AI-powered applications without worrying about API keys or usage limits.
+
+Remember that each user of your application will use their own Puter account, so you don't have to worry about costs or rate limits - it's all handled automatically!
+
+
+Gemini:
+_______________________________________________________________________________________________________
+
+Basic Text Generation with Gemini 2.0 Flash
+Here's a simple example showing how to generate text using Gemini 2.0 Flash:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        puter.ai.chat("Explain the concept of black holes in simple terms", {
+            model: 'google/gemini-2.0-flash-lite-001'
+        }).then(response => {
+            document.write(response.message.content);
+        });
+    </script>
+</body>
+</html>
+Example 2Using Gemini 2.5 Pro
+For comparison, here's how to use Gemini 2.5 Pro:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        puter.ai.chat(
+            "What are the major differences between renewable and non-renewable energy sources?", 
+            {
+                model: 'google/gemini-2.5-pro-exp-03-25:free'
+            }
+        ).then(response => {
+            document.write(response.message.content);
+        });
+    </script>
+</body>
+</html>
+Example 3Streaming Responses
+For longer responses, use streaming to get results in real-time:
+
+<html>
+<body>
+    <div id="output"></div>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        async function streamResponses() {
+            const outputDiv = document.getElementById('output');
+            
+            // Gemini 2.0 Flash with streaming
+            outputDiv.innerHTML += '<h2>Gemini 2.0 Flash Response:</h2>';
+            const flash2Response = await puter.ai.chat(
+                "Explain the process of photosynthesis in detail", 
+                {
+                    model: 'gemini-2.0-flash',
+                    stream: true
+                }
+            );
+            
+            for await (const part of flash2Response) {
+                if (part?.text) {
+                    outputDiv.innerHTML += part.text.replaceAll('\n', '<br>');
+                }
+            }
+            
+            // Gemini 1.5 Flash with streaming
+            outputDiv.innerHTML += '<h2>Gemini 1.5 Flash Response:</h2>';
+            const flash1Response = await puter.ai.chat(
+                "Explain the process of photosynthesis in detail", 
+                {
+                    model: 'gemini-1.5-flash',
+                    stream: true
+                }
+            );
+            
+            for await (const part of flash1Response) {
+                if (part?.text) {
+                    outputDiv.innerHTML += part.text.replaceAll('\n', '<br>');
+                }
+            }
+        }
+
+        streamResponses();
+    </script>
+</body>
+</html>
+Example 4Comparing Models
+Here's how to compare responses from both Gemini models:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+    (async () => {
+        // Gemini 2.5 Pro
+        const pro_resp = await puter.ai.chat(
+            'Tell me something interesting about quantum mechanics.',
+            {model: 'google/gemini-2.5-pro-exp-03-25:free'}
+        );
+        document.write('<h2>Gemini 2.5 Pro Response:</h2>');
+        document.write(pro_resp.message.content);
+
+        // Gemini 2.0 Flash
+        const flash2_resp = await puter.ai.chat(
+            'Tell me something interesting about quantum mechanics.',
+            {model: 'google/gemini-2.0-flash-lite-001', stream: true}
+        );
+        document.write('<h2>Gemini 2.0 Flash Response:</h2>');
+        for await (const part of flash2_resp) {
+            if (part?.text) {
+                document.write(part.text.replaceAll('\n', '<br>'));
+            }
+        }
+
+        // Gemini 1.5 Flash
+        const flash1_resp = await puter.ai.chat(
+            'Tell me something interesting about quantum mechanics.',
+            {model: 'google/gemini-flash-1.5-8b', stream: true}
+        );
+        document.write('<h2>Gemini 1.5 Flash Response:</h2>');
+        for await (const part of flash1_resp) {
+            if (part?.text) {
+                document.write(part.text.replaceAll('\n', '<br>'));
+            }
+        }
+    })();
+    </script>
+</body>
+</html>
+All models
+The following Gemini models are available for free use with Puter.js:
+
+google/gemini-2.5-pro-exp-03-25:free
+google/gemini-2.0-flash-lite-001
+google/gemini-2.0-flash-001
+google/gemini-2.0-pro-exp-02-05:free
+google/gemini-2.0-flash-thinking-exp:free
+google/gemini-2.0-flash-thinking-exp-1219:free
+google/gemini-2.0-flash-exp:free
+google/gemini-flash-1.5-8b
+google/gemini-flash-1.5-8b-exp
+google/gemini-flash-1.5
+google/gemini-pro-1.5
+google/gemini-pro
+That's it! You now have free access to Gemini's powerful language models using Puter.js. This allows you to add sophisticated AI capabilities to your web applications without worrying about API keys or usage limits.
+
+
+Claude:
+_______________________________________________________________________________________________________
+
+Basic Text Generation with Claude 3.7 Sonnet
+To generate text using Claude, use the puter.ai.chat() function with your preferred model. Here's a full code example using Claude 3.7 Sonnet:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        puter.ai.chat("Explain quantum computing in simple terms", {model: 'claude-3-7-sonnet'})
+            .then(response => {
+                puter.print(response.message.content[0].text);
+            });
+    </script>
+</body>
+</html>
+Example 2Streaming Responses for Longer Queries
+For longer responses, use streaming to get results in real-time:
+
+async function streamClaudeResponse(model = 'claude-3-7-sonnet') {
+    const response = await puter.ai.chat(
+        "Write a detailed essay on the impact of artificial intelligence on society", 
+        {model: model, stream: true}
+    );
+    
+    for await (const part of response) {
+        puter.print(part?.text);
+    }
+}
+
+// Use Claude 3.7 Sonnet (default)
+streamClaudeResponse();
+
+// Or specify Claude 3.5 Sonnet
+// streamClaudeResponse('claude-3-5-sonnet');
+Here's the full code example with streaming:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        (async () => {
+            const response = await puter.ai.chat(
+                "Write a detailed essay on the impact of artificial intelligence on society", 
+                {model: 'claude-3-7-sonnet', stream: true}
+            );
+            
+            for await (const part of response) {
+                puter.print(part?.text);
+            }
+        })();
+    </script>
+</body>
+</html>
+Example 3Using different Claude models
+You can specify different Claude models using the model parameter, for example claude-3-5-sonnet or claude-3-7-sonnet:
+
+// Using claude-3-5-sonnet model
+puter.ai.chat(
+    "Write a short poem about coding",
+    { model: "claude-3-5-sonnet" }
+).then(response => {
+    puter.print(response);
+});
+
+// Using claude-3-7-sonnet model
+puter.ai.chat(
+    "Write a short poem about coding",
+    { model: "claude-3-7-sonnet" }
+).then(response => {
+    puter.print(response);
+});
+Full code example:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        // Using claude-3-5-sonnet model
+        puter.ai.chat(
+            "Write a short poem about coding",
+            { model: "claude-3-5-sonnet" }
+        ).then(response => {
+            puter.print("<h2>Using claude-3-5-sonnet model</h2>");
+            puter.print(response);
+        });
+
+        // Using claude-3-7-sonnet model
+        puter.ai.chat(
+            "Write a short poem about coding",
+            { model: "claude-3-7-sonnet" }
+        ).then(response => {
+            puter.print("<h2>Using claude-3-7-sonnet model</h2>");
+            puter.print(response);
+        });
+    </script>
+</body>
+</html>
+Choosing Between Claude 3.5 Sonnet and Claude 3.7 Sonnet
+Claude 3.5 Sonnet: A good general-purpose model for most applications.
+Claude 3.7 Sonnet: The more advanced model, with better performance for complex reasoning tasks, agentic coding, and detailed content generation.
+Both models are available without usage limits through Puter.js, so you can select the one that best fits your specific needs.
+
+That's it! You now have free, unlimited access to Claude capabilities using Puter.js. This allows you to leverage Claude's advanced language understanding and generation abilities without worrying about API keys or usage limits.
+
+
+LIama:
+_______________________________________________________________________________________________________
+
+Use Llama 4 Maverick for text generation
+To generate text using Llama 4 Maverick, use the puter.ai.chat() function with the meta-llama/llama-4-maverick model:
+
+puter.ai.chat("Explain how machine learning works to a beginner", 
+    {model: 'meta-llama/llama-4-maverick'})
+    .then(response => {
+        puter.print(response.message.content);
+    });
+Here's the full code example:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        puter.ai.chat("Explain how machine learning works to a beginner", 
+            {model: 'meta-llama/llama-4-maverick'})
+            .then(response => {
+                puter.print(response.message.content);
+            });
+    </script>
+</body>
+</html>
+Example 2Stream responses for longer queries
+For longer responses, use streaming to get results in real-time:
+
+async function streamLlamaResponse() {
+    const response = await puter.ai.chat(
+        "Write a detailed tutorial on building a React application", 
+        {
+            model: 'meta-llama/llama-4-maverick', 
+            stream: true
+        }
+    );
+    
+    for await (const part of response) {
+        puter.print(part?.text);
+    }
+}
+
+streamLlamaResponse();
+Here's the full code example:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        async function streamLlamaResponse() {
+            const response = await puter.ai.chat(
+                "Write a detailed tutorial on building a React application", 
+                {
+                    model: 'meta-llama/llama-4-maverick', 
+                    stream: true
+                }
+            );
+            
+            for await (const part of response) {
+                puter.print(part?.text);
+            }
+        }
+
+        streamLlamaResponse();
+    </script>
+</body>
+</html>
+Example 3Use different Llama models for different needs
+Puter.js provides access to various Llama models for different requirements:
+
+// Using Llama 3.3 70B for complex tasks
+puter.ai.chat(
+    "Explain the implications of quantum computing on cryptography",
+    { model: "meta-llama/llama-3.3-70b-instruct" }
+).then(response => {
+    puter.print("<h2>Using Llama 3.3 70B</h2>");
+    puter.print(response.message.content);
+});
+
+// Using Llama 3.1 8B for faster responses
+puter.ai.chat(
+    "Suggest three fun weekend activities",
+    { model: "meta-llama/llama-3.1-8b-instruct" }
+).then(response => {
+    puter.print("<h2>Using Llama 3.1 8B</h2>");
+    puter.print(response.message.content);
+});
+
+// Using Llama Guard for content moderation
+puter.ai.chat(
+    "Is this message harmful: 'I enjoy hiking on weekends'",
+    { model: "meta-llama/llama-guard-3-8b" }
+).then(response => {
+    puter.print("<h2>Using Llama Guard</h2>");
+    puter.print(response.message.content);
+});
+Here's the full code example:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        // Using Llama 3.3 70B for complex tasks
+        puter.ai.chat(
+            "Explain the implications of quantum computing on cryptography",
+            { model: "meta-llama/llama-3.3-70b-instruct" }
+        ).then(response => {
+            puter.print("<h2>Using Llama 3.3 70B</h2>");
+            puter.print(response.message.content);
+        });
+
+        // Using Llama 3.1 8B for faster responses
+        puter.ai.chat(
+            "Suggest three fun weekend activities",
+            { model: "meta-llama/llama-3.1-8b-instruct" }
+        ).then(response => {
+            puter.print("<h2>Using Llama 3.1 8B</h2>");
+            puter.print(response.message.content);
+        });
+
+        // Using Llama Guard for content moderation
+        puter.ai.chat(
+            "Is this message harmful: 'I enjoy hiking on weekends'",
+            { model: "meta-llama/llama-guard-3-8b" }
+        ).then(response => {
+            puter.print("<h2>Using Llama Guard</h2>");
+            puter.print(response.message.content);
+        });
+    </script>
+</body>
+</html>
+Available Llama Models
+Puter.js provides access to a comprehensive range of Meta's Llama models:
+
+Llama 4 Models
+meta-llama/llama-4-maverick
+meta-llama/llama-4-scout
+Llama 3.3 Models
+meta-llama/llama-3.3-70b-instruct
+Llama 3.2 Models
+meta-llama/llama-3.2-3b-instruct
+meta-llama/llama-3.2-1b-instruct
+Llama 3.1 Models
+meta-llama/llama-3.1-405b
+meta-llama/llama-3.1-8b-instruct
+meta-llama/llama-3.1-405b-instruct
+meta-llama/llama-3.1-70b-instruct
+Llama 3 Models
+meta-llama/llama-3-8b-instruct
+meta-llama/llama-3-70b-instruct
+Llama 2 Models
+meta-llama/llama-2-70b-chat
+meta-llama/llama-2-13b-chat
+Llama Guard Models
+meta-llama/llama-guard-3-8b
+meta-llama/llama-guard-2-8b
+Simply replace the model name in the puter.ai.chat() function to use a different model.
+
+Best Practices
+For most general-purpose tasks, use meta-llama/llama-3.3-70b-instruct for the best quality results
+For faster responses with slightly lower quality, use meta-llama/llama-3.1-8b-instruct
+For content moderation, use meta-llama/llama-guard-3-8b
+Enable streaming for longer responses to improve user experience
+That's it! You now have free, unlimited access to Meta's Llama models using Puter.js. This allows you to leverage Llama's powerful language understanding and generation abilities without worrying about API keys or usage limits.
+
+
+OpenRouter:
+_______________________________________________________________________________________________________
+
+Puter.js is completely serverless and works without any API keys or server-side setup. To start using Puter.js for accessing OpenRouter models, include the following script tag in your HTML file:
+
+<script src="https://js.puter.com/v2/"></script>
+That's it! You're now ready to use Puter.js for free access to hundreds of AI models. No API keys, backend setup, or server-side code required. Everything is handled on the frontend.
+
+Example 1Basic Text Generation with Llama 3
+Let's start with a simple example that uses Meta's Llama 3 model for text generation:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        puter.ai.chat("Explain quantum computing in simple terms", 
+            {model: 'openrouter:meta-llama/llama-3.1-8b-instruct'})
+            .then(response => {
+                document.body.innerHTML = response;
+            });
+    </script>
+</body>
+</html>
+This example demonstrates how to generate text using Meta's Llama 3.1 8B model through OpenRouter. The model will provide a simple explanation of quantum computing, showcasing its ability to explain complex concepts in an accessible way.
+
+Example 2Streaming Responses with Claude 3.7 Sonnet
+For longer responses, it's often better to stream the results. Here's how to use streaming with Anthropic's Claude 3.7 Sonnet model:
+
+<html>
+<body>
+    <div id="response"></div>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        async function streamResponse() {
+            const outputDiv = document.getElementById('response');
+            
+            const response = await puter.ai.chat(
+                "Write a short story about a robot that discovers emotions", 
+                {model: 'openrouter:anthropic/claude-3.7-sonnet', stream: true}
+            );
+            
+            for await (const part of response) {
+                if (part?.text) {
+                    outputDiv.innerHTML += part.text;
+                }
+            }
+        }
+
+        streamResponse();
+    </script>
+</body>
+</html>
+This example shows how to stream responses from Anthropic's Claude 3.7 Sonnet model. Streaming is particularly useful for longer creative content like stories, where users can see the text appear in real-time rather than waiting for the entire response.
+
+Example 3Model Selection Interface
+Let's create a simple interface that allows users to select from different models:
+
+<html>
+<body>
+    <div style="max-width: 800px; margin: 20px auto; font-family: Arial, sans-serif;">
+        <h1>OpenRouter Model Explorer</h1>
+        <select id="model-select" style="padding: 8px; margin-bottom: 10px;">
+            <option value="openrouter:meta-llama/llama-3.1-8b-instruct">Meta Llama 3.1 (8B)</option>
+            <option value="openrouter:anthropic/claude-3.5-sonnet">Anthropic Claude 3.5 Sonnet</option>
+            <option value="openrouter:mistralai/mistral-7b-instruct">Mistral 7B</option>
+            <option value="openrouter:google/gemini-pro-1.5">Google Gemini Pro 1.5</option>
+            <option value="openrouter:openai/gpt-4o-mini">OpenAI GPT-4o Mini</option>
+        </select>
+        <textarea id="prompt" rows="4" style="width: 100%; padding: 8px; margin-bottom: 10px;" 
+            placeholder="Enter your prompt here...">Explain how solar panels work.</textarea>
+        <button id="generate" style="padding: 8px 16px;">Generate</button>
+        <div id="loading" style="display: none; margin-top: 10px;">Generating response...</div>
+        <div id="response" style="margin-top: 20px; padding: 15px; border: 1px solid #ddd; 
+            border-radius: 5px; min-height: 200px;"></div>
+    </div>
+
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        document.getElementById('generate').addEventListener('click', async () => {
+            const modelSelect = document.getElementById('model-select');
+            const promptInput = document.getElementById('prompt');
+            const responseDiv = document.getElementById('response');
+            const loadingDiv = document.getElementById('loading');
+            
+            const selectedModel = modelSelect.value;
+            const prompt = promptInput.value;
+            
+            if (!prompt) return;
+            
+            responseDiv.innerHTML = '';
+            loadingDiv.style.display = 'block';
+            
+            try {
+                const response = await puter.ai.chat(prompt, {model: selectedModel});
+                responseDiv.innerHTML = response;
+            } catch (error) {
+                responseDiv.innerHTML = `Error: ${error.message}`;
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
+This example creates a simple interface where users can select from different models provided through OpenRouter and generate responses to their prompts. The interface includes a dropdown for model selection, a textarea for entering prompts, and a button to generate responses.
+
+List of Models
+The following is a list of OpenRouter models available through Puter.js as of March 2025:
+
+
+openrouter:01-ai/yi-large
+openrouter:aetherwiing/mn-starcannon-12b
+openrouter:ai21/jamba-1-5-large
+openrouter:ai21/jamba-1-5-mini
+openrouter:ai21/jamba-1.6-large
+openrouter:ai21/jamba-1.6-mini
+openrouter:ai21/jamba-instruct
+openrouter:aion-labs/aion-1.0
+openrouter:aion-labs/aion-1.0-mini
+openrouter:aion-labs/aion-rp-llama-3.1-8b
+openrouter:all-hands/openhands-lm-32b-v0.1
+openrouter:allenai/molmo-7b-d:free
+openrouter:allenai/olmo-2-0325-32b-instruct
+openrouter:alpindale/goliath-120b
+openrouter:alpindale/magnum-72b
+openrouter:amazon/nova-lite-v1
+openrouter:amazon/nova-micro-v1
+openrouter:amazon/nova-pro-v1
+openrouter:anthracite-org/magnum-v2-72b
+openrouter:anthracite-org/magnum-v4-72b
+openrouter:anthropic/claude-2
+openrouter:anthropic/claude-2.0
+openrouter:anthropic/claude-2.0:beta
+openrouter:anthropic/claude-2.1
+openrouter:anthropic/claude-2.1:beta
+openrouter:anthropic/claude-2:beta
+openrouter:anthropic/claude-3-haiku
+openrouter:anthropic/claude-3-haiku:beta
+openrouter:anthropic/claude-3-opus
+openrouter:anthropic/claude-3-opus:beta
+openrouter:anthropic/claude-3-sonnet
+openrouter:anthropic/claude-3-sonnet:beta
+openrouter:anthropic/claude-3.5-haiku
+openrouter:anthropic/claude-3.5-haiku-20241022
+openrouter:anthropic/claude-3.5-haiku-20241022:beta
+openrouter:anthropic/claude-3.5-haiku:beta
+openrouter:anthropic/claude-3.5-sonnet
+openrouter:anthropic/claude-3.5-sonnet-20240620
+openrouter:anthropic/claude-3.5-sonnet-20240620:beta
+openrouter:anthropic/claude-3.5-sonnet:beta
+openrouter:anthropic/claude-3.7-sonnet
+openrouter:anthropic/claude-3.7-sonnet:beta
+openrouter:anthropic/claude-3.7-sonnet:thinking
+openrouter:bytedance-research/ui-tars-72b:free
+openrouter:cognitivecomputations/dolphin-mixtral-8x22b
+openrouter:cognitivecomputations/dolphin-mixtral-8x7b
+openrouter:cognitivecomputations/dolphin3.0-mistral-24b:free
+openrouter:cognitivecomputations/dolphin3.0-r1-mistral-24b:free
+openrouter:cohere/command
+openrouter:cohere/command-a
+openrouter:cohere/command-r
+openrouter:cohere/command-r-03-2024
+openrouter:cohere/command-r-08-2024
+openrouter:cohere/command-r-plus
+openrouter:cohere/command-r-plus-04-2024
+openrouter:cohere/command-r-plus-08-2024
+openrouter:cohere/command-r7b-12-2024
+openrouter:deepseek/deepseek-chat
+openrouter:deepseek/deepseek-chat-v3-0324
+openrouter:deepseek/deepseek-chat-v3-0324:free
+openrouter:deepseek/deepseek-chat:free
+openrouter:deepseek/deepseek-r1
+openrouter:deepseek/deepseek-r1-distill-llama-70b
+openrouter:deepseek/deepseek-r1-distill-llama-70b:free
+openrouter:deepseek/deepseek-r1-distill-llama-8b
+openrouter:deepseek/deepseek-r1-distill-qwen-1.5b
+openrouter:deepseek/deepseek-r1-distill-qwen-14b
+openrouter:deepseek/deepseek-r1-distill-qwen-14b:free
+openrouter:deepseek/deepseek-r1-distill-qwen-32b
+openrouter:deepseek/deepseek-r1-distill-qwen-32b:free
+openrouter:deepseek/deepseek-r1-zero:free
+openrouter:deepseek/deepseek-r1:free
+openrouter:deepseek/deepseek-v3-base:free
+openrouter:eva-unit-01/eva-llama-3.33-70b
+openrouter:eva-unit-01/eva-qwen-2.5-32b
+openrouter:eva-unit-01/eva-qwen-2.5-72b
+openrouter:featherless/qwerky-72b:free
+openrouter:google/gemini-2.0-flash-001
+openrouter:google/gemini-2.0-flash-exp:free
+openrouter:google/gemini-2.0-flash-lite-001
+openrouter:google/gemini-2.0-flash-thinking-exp-1219:free
+openrouter:google/gemini-2.0-flash-thinking-exp:free
+openrouter:google/gemini-2.5-pro-exp-03-25:free
+openrouter:google/gemini-2.5-pro-preview-03-25
+openrouter:google/gemini-flash-1.5
+openrouter:google/gemini-flash-1.5-8b
+openrouter:google/gemini-flash-1.5-8b-exp
+openrouter:google/gemini-pro
+openrouter:google/gemini-pro-1.5
+openrouter:google/gemini-pro-vision
+openrouter:google/gemma-2-27b-it
+openrouter:google/gemma-2-9b-it
+openrouter:google/gemma-2-9b-it:free
+openrouter:google/gemma-3-12b-it
+openrouter:google/gemma-3-12b-it:free
+openrouter:google/gemma-3-1b-it:free
+openrouter:google/gemma-3-27b-it
+openrouter:google/gemma-3-27b-it:free
+openrouter:google/gemma-3-4b-it
+openrouter:google/gemma-3-4b-it:free
+openrouter:google/learnlm-1.5-pro-experimental:free
+openrouter:google/palm-2-chat-bison
+openrouter:google/palm-2-chat-bison-32k
+openrouter:google/palm-2-codechat-bison
+openrouter:google/palm-2-codechat-bison-32k
+openrouter:gryphe/mythomax-l2-13b
+openrouter:huggingfaceh4/zephyr-7b-beta:free
+openrouter:infermatic/mn-inferor-12b
+openrouter:inflection/inflection-3-pi
+openrouter:inflection/inflection-3-productivity
+openrouter:jondurbin/airoboros-l2-70b
+openrouter:latitudegames/wayfarer-large-70b-llama-3.3
+openrouter:liquid/lfm-3b
+openrouter:liquid/lfm-40b
+openrouter:liquid/lfm-7b
+openrouter:mancer/weaver
+openrouter:meta-llama/llama-2-13b-chat
+openrouter:meta-llama/llama-2-70b-chat
+openrouter:meta-llama/llama-3-70b-instruct
+openrouter:meta-llama/llama-3-8b-instruct
+openrouter:meta-llama/llama-3.1-405b
+openrouter:meta-llama/llama-3.1-405b-instruct
+openrouter:meta-llama/llama-3.1-70b-instruct
+openrouter:meta-llama/llama-3.1-8b-instruct
+openrouter:meta-llama/llama-3.1-8b-instruct:free
+openrouter:meta-llama/llama-3.2-11b-vision-instruct
+openrouter:meta-llama/llama-3.2-11b-vision-instruct:free
+openrouter:meta-llama/llama-3.2-1b-instruct
+openrouter:meta-llama/llama-3.2-1b-instruct:free
+openrouter:meta-llama/llama-3.2-3b-instruct
+openrouter:meta-llama/llama-3.2-3b-instruct:free
+openrouter:meta-llama/llama-3.2-90b-vision-instruct
+openrouter:meta-llama/llama-3.3-70b-instruct
+openrouter:meta-llama/llama-3.3-70b-instruct:free
+openrouter:meta-llama/llama-4-maverick
+openrouter:meta-llama/llama-4-maverick:free
+openrouter:meta-llama/llama-4-scout
+openrouter:meta-llama/llama-4-scout:free
+openrouter:meta-llama/llama-guard-2-8b
+openrouter:meta-llama/llama-guard-3-8b
+openrouter:microsoft/phi-3-medium-128k-instruct
+openrouter:microsoft/phi-3-mini-128k-instruct
+openrouter:microsoft/phi-3.5-mini-128k-instruct
+openrouter:microsoft/phi-4
+openrouter:microsoft/phi-4-multimodal-instruct
+openrouter:microsoft/wizardlm-2-7b
+openrouter:microsoft/wizardlm-2-8x22b
+openrouter:minimax/minimax-01
+openrouter:mistral/ministral-8b
+openrouter:mistralai/codestral-2501
+openrouter:mistralai/codestral-mamba
+openrouter:mistralai/ministral-3b
+openrouter:mistralai/ministral-8b
+openrouter:mistralai/mistral-7b-instruct
+openrouter:mistralai/mistral-7b-instruct-v0.1
+openrouter:mistralai/mistral-7b-instruct-v0.2
+openrouter:mistralai/mistral-7b-instruct-v0.3
+openrouter:mistralai/mistral-7b-instruct:free
+openrouter:mistralai/mistral-large
+openrouter:mistralai/mistral-large-2407
+openrouter:mistralai/mistral-large-2411
+openrouter:mistralai/mistral-medium
+openrouter:mistralai/mistral-nemo
+openrouter:mistralai/mistral-nemo:free
+openrouter:mistralai/mistral-saba
+openrouter:mistralai/mistral-small
+openrouter:mistralai/mistral-small-24b-instruct-2501
+openrouter:mistralai/mistral-small-24b-instruct-2501:free
+openrouter:mistralai/mistral-small-3.1-24b-instruct
+openrouter:mistralai/mistral-small-3.1-24b-instruct:free
+openrouter:mistralai/mistral-tiny
+openrouter:mistralai/mixtral-8x22b-instruct
+openrouter:mistralai/mixtral-8x7b
+openrouter:mistralai/mixtral-8x7b-instruct
+openrouter:mistralai/pixtral-12b
+openrouter:mistralai/pixtral-large-2411
+openrouter:moonshotai/moonlight-16b-a3b-instruct:free
+openrouter:neversleep/llama-3-lumimaid-70b
+openrouter:neversleep/llama-3-lumimaid-8b
+openrouter:neversleep/llama-3-lumimaid-8b:extended
+openrouter:neversleep/llama-3.1-lumimaid-70b
+openrouter:neversleep/llama-3.1-lumimaid-8b
+openrouter:neversleep/noromaid-20b
+openrouter:nothingiisreal/mn-celeste-12b
+openrouter:nousresearch/deephermes-3-llama-3-8b-preview:free
+openrouter:nousresearch/hermes-2-pro-llama-3-8b
+openrouter:nousresearch/hermes-3-llama-3.1-405b
+openrouter:nousresearch/hermes-3-llama-3.1-70b
+openrouter:nousresearch/nous-hermes-2-mixtral-8x7b-dpo
+openrouter:nousresearch/nous-hermes-llama2-13b
+openrouter:nvidia/llama-3.1-nemotron-70b-instruct
+openrouter:nvidia/llama-3.1-nemotron-70b-instruct:free
+openrouter:nvidia/llama-3.1-nemotron-nano-8b-v1:free
+openrouter:nvidia/llama-3.1-nemotron-ultra-253b-v1:free
+openrouter:nvidia/llama-3.3-nemotron-super-49b-v1:free
+openrouter:open-r1/olympiccoder-32b:free
+openrouter:open-r1/olympiccoder-7b:free
+openrouter:openai/chatgpt-4o-latest
+openrouter:openai/gpt-3.5-turbo
+openrouter:openai/gpt-3.5-turbo-0125
+openrouter:openai/gpt-3.5-turbo-0613
+openrouter:openai/gpt-3.5-turbo-1106
+openrouter:openai/gpt-3.5-turbo-16k
+openrouter:openai/gpt-3.5-turbo-instruct
+openrouter:openai/gpt-4
+openrouter:openai/gpt-4-0314
+openrouter:openai/gpt-4-1106-preview
+openrouter:openai/gpt-4-32k
+openrouter:openai/gpt-4-32k-0314
+openrouter:openai/gpt-4-turbo
+openrouter:openai/gpt-4-turbo-preview
+openrouter:openai/gpt-4.5-preview
+openrouter:openai/gpt-4o
+openrouter:openai/gpt-4o-2024-05-13
+openrouter:openai/gpt-4o-2024-08-06
+openrouter:openai/gpt-4o-2024-11-20
+openrouter:openai/gpt-4o-mini
+openrouter:openai/gpt-4o-mini-2024-07-18
+openrouter:openai/gpt-4o-mini-search-preview
+openrouter:openai/gpt-4o-search-preview
+openrouter:openai/gpt-4o:extended
+openrouter:openai/o1
+openrouter:openai/o1-mini
+openrouter:openai/o1-mini-2024-09-12
+openrouter:openai/o1-preview
+openrouter:openai/o1-preview-2024-09-12
+openrouter:openai/o1-pro
+openrouter:openai/o3-mini
+openrouter:openai/o3-mini-high
+openrouter:openchat/openchat-7b
+openrouter:openrouter/auto
+openrouter:openrouter/quasar-alpha
+openrouter:perplexity/llama-3.1-sonar-large-128k-online
+openrouter:perplexity/llama-3.1-sonar-small-128k-online
+openrouter:perplexity/r1-1776
+openrouter:perplexity/sonar
+openrouter:perplexity/sonar-deep-research
+openrouter:perplexity/sonar-pro
+openrouter:perplexity/sonar-reasoning
+openrouter:perplexity/sonar-reasoning-pro
+openrouter:pygmalionai/mythalion-13b
+openrouter:qwen/qwen-2-72b-instruct
+openrouter:qwen/qwen-2.5-72b-instruct
+openrouter:qwen/qwen-2.5-72b-instruct:free
+openrouter:qwen/qwen-2.5-7b-instruct
+openrouter:qwen/qwen-2.5-7b-instruct:free
+openrouter:qwen/qwen-2.5-coder-32b-instruct
+openrouter:qwen/qwen-2.5-coder-32b-instruct:free
+openrouter:qwen/qwen-2.5-vl-72b-instruct
+openrouter:qwen/qwen-2.5-vl-7b-instruct
+openrouter:qwen/qwen-2.5-vl-7b-instruct:free
+openrouter:qwen/qwen-max
+openrouter:qwen/qwen-plus
+openrouter:qwen/qwen-turbo
+openrouter:qwen/qwen-vl-max
+openrouter:qwen/qwen-vl-plus
+openrouter:qwen/qwen2.5-32b-instruct
+openrouter:qwen/qwen2.5-vl-32b-instruct
+openrouter:qwen/qwen2.5-vl-32b-instruct:free
+openrouter:qwen/qwen2.5-vl-3b-instruct:free
+openrouter:qwen/qwen2.5-vl-72b-instruct
+openrouter:qwen/qwen2.5-vl-72b-instruct:free
+openrouter:qwen/qwq-32b
+openrouter:qwen/qwq-32b-preview
+openrouter:qwen/qwq-32b-preview:free
+openrouter:qwen/qwq-32b:free
+openrouter:raifle/sorcererlm-8x22b
+openrouter:rekaai/reka-flash-3:free
+openrouter:sao10k/fimbulvetr-11b-v2
+openrouter:sao10k/l3-euryale-70b
+openrouter:sao10k/l3-lunaris-8b
+openrouter:sao10k/l3.1-70b-hanami-x1
+openrouter:sao10k/l3.1-euryale-70b
+openrouter:sao10k/l3.3-euryale-70b
+openrouter:scb10x/llama3.1-typhoon2-70b-instruct
+openrouter:scb10x/llama3.1-typhoon2-8b-instruct
+openrouter:sophosympatheia/midnight-rose-70b
+openrouter:sophosympatheia/rogue-rose-103b-v0.2:free
+openrouter:steelskull/l3.3-electra-r1-70b
+openrouter:thedrummer/anubis-pro-105b-v1
+openrouter:thedrummer/rocinante-12b
+openrouter:thedrummer/skyfall-36b-v2
+openrouter:thedrummer/unslopnemo-12b
+openrouter:tokyotech-llm/llama-3.1-swallow-70b-instruct-v0.3
+openrouter:tokyotech-llm/llama-3.1-swallow-8b-instruct-v0.3
+openrouter:undi95/remm-slerp-l2-13b
+openrouter:undi95/toppy-m-7b
+openrouter:x-ai/grok-2-1212
+openrouter:x-ai/grok-2-vision-1212
+openrouter:x-ai/grok-beta
+openrouter:x-ai/grok-vision-beta
+openrouter:xwin-lm/xwin-lm-70b
+
+Best Practices
+When using OpenRouter through Puter.js, keep these best practices in mind:
+
+Choose the right model for your task: Different models excel at different tasks. Smaller models are faster and more cost-effective for simple queries, while larger models perform better on complex reasoning tasks.
+
+Use streaming for longer responses: When generating longer content like stories or essays, use streaming to provide a better user experience.
+
+Handle errors gracefully: Always implement error handling to provide feedback if the API request fails.
+
+Be specific with prompts: Provide clear and specific instructions to get the best results from the models.
+
+
+Info:
+_______________________________________________________________________________________________________
+Puter.js works without any API keys or sign-ups. To start using Puter.js, include the following script tag in your HTML file, either in the <head> or <body> section:
+
+<script src="https://js.puter.com/v2/"></script>
+You're now ready to use Puter.js for free AI capabilities. No API keys or sign-ups are required.
+
+Example 1Basic Text Generation with GPT-4o
+Here's a simple example showing how to generate text using GPT-4o:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        puter.ai.chat("Explain quantum computing in simple terms").then(response => {
+            document.write(response);
+        });
+    </script>
+</body>
+</html>
+This example demonstrates the most basic usage of the AI capabilities. The puter.ai.chat() function sends your prompt to the GPT-4o model and returns the response. By default, Puter.js uses GPT-4o mini, which is optimized for speed and efficiency.
+
+Example 2Using Claude 3.5 Sonnet for Complex Tasks
+Claude 3.5 Sonnet is particularly good at complex reasoning and detailed analysis:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        puter.ai.chat("Analyze the potential impact of quantum computing on cryptography", {
+            model: 'claude-3-5-sonnet'
+        }).then(response => {
+            document.write(response);
+        });
+    </script>
+</body>
+</html>
+This example shows how to specify a different model using the options parameter. Claude 3.5 Sonnet is well-suited for tasks requiring deep analysis or technical understanding.
+
+Example 3Streaming Responses with Llama
+For longer responses, you can use streaming to get results in real-time:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+        async function streamResponse() {
+            const response = await puter.ai.chat(
+                "Write a detailed analysis of renewable energy sources", 
+                {
+                    model: 'meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo',
+                    stream: true
+                }
+            );
+            
+            for await (const part of response) {
+                document.write(part?.text);
+            }
+        }
+
+        streamResponse();
+    </script>
+</body>
+</html>
+This example demonstrates streaming with Llama, which is particularly useful for longer responses. The streaming approach provides a better user experience by showing the response as it's generated rather than waiting for the complete response.
+
+Example 4Vision Capabilities
+You can also analyze images using GPT-4 Vision:
+
+<html>
+<body>
+    <script src="https://js.puter.com/v2/"></script>
+    <img src="https://assets.puter.site/doge.jpeg" id="image">
+    <script>
+        puter.ai.chat(
+            "What do you see in this image?",
+            "https://assets.puter.site/doge.jpeg"
+        ).then(response => {
+            document.write(response);
+        });
+    </script>
+</body>
+</html>
+This example shows how to use GPT-4 Vision capabilities to analyze images. You can pass an image URL as the second parameter to have the AI analyze its contents.
+
+Best Practices
+When implementing AI in your web applications with Puter.js:
+
+Choose the appropriate model for your use case:
+
+GPT-4o mini: Best for quick, general-purpose responses
+Claude 3.5 Sonnet: Ideal for complex analysis and technical tasks
+Llama: Good for general tasks with different model sizes available
+GPT-4o: Best for vision-related tasks
+Use streaming for longer responses to improve user experience
+
+Handle errors gracefully and provide feedback to users when the AI is processing
+

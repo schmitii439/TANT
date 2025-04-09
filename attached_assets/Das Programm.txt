@@ -1,0 +1,112 @@
+Title: Instruction for Developing an Advanced PC Application with Voice Interaction, Real-Time News, and Financial Analysis
+
+1. Overview
+Develop a program that installs on a personal computer and provides an interactive, intelligent assistant capable of engaging in dynamic, two‐way communication. The assistant must support microphone input (and work without it if needed) while producing spoken and written responses. It is intended to converse in a witty, sharp, and sometimes dark-humored manner, reflecting a personality akin to a conspiracy theorist who maintains a balanced, critical, and unbiased stance. The application must evolve by learning after each interaction.
+
+2. Conversational Capabilities
+
+    Voice and Text Interaction:
+
+        The program must be able to accept voice commands via microphone input and reply using synthesized speech.
+
+        It should seamlessly switch between voice and keyboard-based inputs.
+
+    Conversational Style and Learning:
+
+        The assistant must generate coherent, logical sentences and incorporate robust scientific reasoning while explicitly stating that its outputs are derived from analysis rather than absolute truths.
+
+        It should maintain openness and impartiality, continually learning from new interactions to improve its knowledge base and conversational style.
+
+    Humorous and Critical Edge:
+
+        Infuse the dialogue with a sense of black humor and sharp wit.
+
+        Display a personality that can also reflect on conspiracy theories without endorsing them as fact, ensuring a skeptical and self-critical evaluation of information.
+
+3. Multi-API Integration and Self-Selection of Solutions
+
+    API Utilization:
+
+        Integrate multiple external APIs such as Claude, OpenRouter, Grok, Llama, Gemini, DeepSeek, OpenAI, and Mistrial (provided by puter.ai).
+
+        The system should have a built-in mechanism to analyze incoming queries and determine which API—based on factors like reliability and context—can produce the best response.
+
+    Self-Selection and Best-Answer Output:
+
+        Provide an internal comparative analysis of answers from the integrated APIs and output the best solution for the user's query, explaining the reasoning behind the chosen API if necessary.
+
+4. Real-Time News and Data Delivery
+
+    News Aggregation:
+
+        Enable the delivery of real-time news feeds with an emphasis on important topics such as political affairs across all countries and crucial stock market updates.
+
+        Ensure that news content is aggregated from Grok and other relevant sources and can be filtered for in-depth analyses or summarized for quick reading.
+
+        Include voice support for reading news aloud.
+
+5. Stock Market Analysis Module
+
+    Detailed Financial Insights:
+
+        Develop a dedicated module for stock analysis that covers every aspect of the market.
+
+        Provide real-time charts for individual stocks by fetching data directly from internet sources.
+
+    Short-Term and Long-Term Strategies:
+
+        Within a dedicated tab, offer two strategies for trading:
+
+            A “safe” strategy that aims for measured profit in a short-term frame of one month, and a “high-risk” strategy for rapid profit generation within the same time period.
+
+            Additional analysis and recommendations for medium-term (1–5 years) and long-term (5–10 years) investments, both with and without leveraging functions.
+
+    Investment Simulation and Learning:
+
+        Allow users to simulate investing a nominal amount (for example, 200€) and track buy/sell recommendations based on predictive analyses.
+
+        Provide detailed assessments of the trading results—whether the simulation ends in gains or losses—to enhance the learning process of the assistant.
+
+6. Cryptocurrency Analysis Module
+
+    Real-Time Crypto Data:
+
+        Create an extra tab specifically for cryptocurrencies and upcoming tokens, including memecoins.
+
+        Fetch live, real-time data and support voice commands to request analysis.
+
+    Predictive Insights and Simulation:
+
+        Integrate multiple APIs to analyze trends and predict market movements (both upward and downward trends) rapidly.
+
+        Offer two parallel analyses: one with leveraging functionalities (using various “knockout” or “multiplier” strategies) and one without, each starting from a minimal simulated investment (e.g., 5€ per trade).
+
+        Enable the system to provide concrete buying and selling recommendations for specific time intervals, and then perform a retrospective analysis to learn from the outcomes.
+
+    Virtual Trading Environment:
+
+        All simulations should run in parallel with real-time market data, meaning that while investments are simulated, they accurately reflect current market conditions.
+
+        Even if the virtual trades result in losses, they must be logged and thoroughly analyzed to further train and refine the assistant’s decision-making capabilities.
+
+7. Additional Functional Requirements
+
+    User Interface:
+
+        The application interface should be intuitive, offering separate tabs or sections for different data types: conversational interaction, news, stocks, and cryptocurrencies.
+
+        Provide both a “detailed view” for in-depth analysis and a “filtered/summarized view” for quick updates.
+
+    System Feedback and Continuous Learning:
+
+        Incorporate mechanisms for tracking outcomes of financial simulations and user interactions to update and retrain the AI continuously.
+
+        Ensure that every transaction, analysis, and conversational exchange is logged and revisited by the system to refine future responses.
+
+    Flexibility and Custom Search Fields:
+
+        Besides the main interaction mode, include options for specialized searches. For example, allow users to input keywords like “UFOs” or any other topic in a dedicated search field to trigger topic-specific analysis.
+
+        Ensure that even if the microphone is not used, all functionalities can be accessed through standard input and navigation methods.
+
+___________________________________________

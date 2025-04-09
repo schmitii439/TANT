@@ -16,7 +16,8 @@ export async function compareModels(
   message: string, 
   models: string[] = [
     'claude-3-7-sonnet', 
-    'google/gemini-2.5-pro-exp-03-25:free', 
+    'google/gemini-2.5-pro-exp-03-25:free',
+    'openrouter:x-ai/grok-2-1212',
     'deepseek-chat', 
     'meta-llama/llama-4-maverick'
   ]
