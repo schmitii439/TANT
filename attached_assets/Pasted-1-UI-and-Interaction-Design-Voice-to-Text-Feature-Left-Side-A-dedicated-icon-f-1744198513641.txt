@@ -1,0 +1,352 @@
+1. UI and Interaction Design
+
+    Voice-to-Text Feature (Left Side):
+
+        A dedicated icon for voice-to-text appears on the left of the chatbox. This icon enables users to dictate their messages.
+
+        The dictated text is then converted and inserted into the chat for further processing.
+
+    Dedicated Voice Conversation Window (Right Side):
+
+        A circular microphone icon is placed on the right. When clicked, it opens a dedicated conversation window.
+
+        In this window, the AI immediately begins a spoken dialogue with the user using its natural, gentle German voice (as defined in the TTS configuration).
+
+        After each spoken AI response, a short signal tone is played (e.g., a soft chime) to indicate that the user may now resume speaking.
+
+        The user can also interrupt the AI response by triggering a signal (for example, clicking an “interrupt” control or pressing a hotkey) that stops the current TTS playback immediately.
+
+2. TTS and Voice Characteristics
+
+    Voice Settings:
+
+        Language: German (de-DE)
+
+        Voice Tone: Use a natural, gentle, and warm German female voice. This voice should be devoid of any harsh or overly electronic qualities.
+
+        Speech Rate: Default at 1.25× speed, adjustable via a gear icon (up to 2× speed if needed).
+
+        TTS Configuration Keywords:
+
+            voiceStyle: "natural-female, gentle, calm, articulate"
+
+            tone: "intelligent, warm, expressive, natural"
+
+    Playback Controls in the Chat Window:
+
+        Under each text output (in the main chat area), include icons for pause and stop. These allow users to control any live spoken output.
+
+        A settings gear icon appears (except when set at 2×) to let the user adjust speech speed.
+
+3. Example Code Snippet (Pseudocode/Python + HTML/JavaScript)
+
+# Python Backend (Flask example)
+from flask import Flask, request, jsonify
+import your_ai_models_module  # Module managing AI models
+
+app = Flask(__name__)
+
+# TTS configuration for natural, gentle German voice
+TTS_VOICE_CONFIG = {
+    "language": "de-DE",
+    "voiceStyle": "natural-female, gentle, calm, articulate",
+    "tone": "intelligent, warm, expressive, natural",
+    "defaultRate": 1.25,
+    "maxRate": 2.0
+}
+
+@app.route('/process_input', methods=['POST'])
+def process_input():
+    user_input = request.json.get("text")
+    selected_model = request.json.get("model", "GPT-4o")
+    
+    # Process the AI response using the selected model
+    if selected_model == "GPT-4o":
+        response_text = your_ai_models_module.gpt_4o(user_input)
+    elif selected_model == "Grok":
+        response_text = your_ai_models_module.grok(user_input)
+    elif selected_model == "DeepSeek":
+        response_text = your_ai_models_module.deepseek(user_input)
+    else:
+        response_text = "Model not supported."
+    
+    # Optionally, further refine the response using a synthesis engine like PHÖNIX
+    final_response = your_ai_models_module.finalize_response(response_text)
+    
+    # Return response along with TTS config and signal tone URL
+    return jsonify({
+      "response": final_response, 
+      "tts_config": TTS_VOICE_CONFIG,
+      "signalTone": "path/to/signal_tone.mp3"  # URL for the tone sound
+    })
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+<!-- Example HTML and JavaScript for the integrated UI -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Assistant Interface</title>
+  <style>
+    /* Layout styling */
+    body { font-family: sans-serif; }
+    
+    /* Chatbox styling */
+    #chatbox {
+      width: 80%;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+    }
+    
+    /* Voice-to-Text icon on the left of the chat input */
+    .v2t-icon {
+      margin-right: 5px;
+      cursor: pointer;
+      font-size: 24px;
+    }
+    
+    /* Chat input area */
+    #userInput {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+    }
+    
+    /* Right-side microphone button */
+    #voiceChatButton {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background-color: #4CAF50;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    
+    /* Conversation window styling */
+    #voiceChatWindow {
+      display: none;
+      position: fixed;
+      right: 100px;
+      bottom: 20px;
+      width: 300px;
+      height: 400px;
+      background-color: #f1f1f1;
+      border: 1px solid #ccc;
+      padding: 10px;
+      overflow-y: auto;
+    }
+    
+    /* Response output with playback control icons */
+    .response-output {
+      margin-bottom: 20px;
+      border-bottom: 1px dashed #ccc;
+      padding-bottom: 10px;
+    }
+    .control-icons {
+      margin-top: 5px;
+    }
+    .control-icon {
+      cursor: pointer;
+      margin-right: 10px;
+      font-size: 20px;
+    }
+  </style>
+  <!-- Include Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <!-- Main Chatbox -->
+  <div id="chatbox">
+    <!-- Voice-to-text icon to dictate text -->
+    <i class="fas fa-microphone v2t-icon" title="Voice to Text"></i>
+    <input type="text" id="userInput" placeholder="Type or speak your message...">
+  </div>
+  
+  <!-- Main response area -->
+  <div id="responseArea"></div>
+  
+  <!-- Right-side microphone button to open dedicated voice conversation window -->
+  <button id="voiceChatButton"><i class="fas fa-microphone"></i></button>
+  
+  <!-- Dedicated conversation window -->
+  <div id="voiceChatWindow">
+    <div id="voiceConversation"></div>
+    <button id="closeVoiceChat" style="margin-top:10px;">Close</button>
+  </div>
+  
+  <!-- Template for a response block with playback controls -->
+  <template id="responseTemplate">
+    <div class="response-output">
+      <p class="response-text"></p>
+      <div class="control-icons">
+        <i class="fas fa-pause control-icon" title="Pause"></i>
+        <i class="fas fa-stop control-icon" title="Stop"></i>
+        <i class="fas fa-cog control-icon speed-adjust" title="Adjust Speed"></i>
+      </div>
+    </div>
+  </template>
+  
+  <!-- Audio element for the signal tone -->
+  <audio id="signalTone" src="path/to/signal_tone.mp3" preload="auto"></audio>
+  
+  <script>
+    // Basic configuration for TTS
+    const TTS_CONFIG = {
+      language: 'de-DE',
+      defaultRate: 1.25,
+      maxRate: 2.0
+    };
+    
+    const userInput = document.getElementById('userInput');
+    const responseArea = document.getElementById('responseArea');
+    const responseTemplate = document.getElementById('responseTemplate');
+    const signalToneAudio = document.getElementById('signalTone');
+    
+    // Voice Chat elements
+    const voiceChatButton = document.getElementById('voiceChatButton');
+    const voiceChatWindow = document.getElementById('voiceChatWindow');
+    const voiceConversation = document.getElementById('voiceConversation');
+    const closeVoiceChat = document.getElementById('closeVoiceChat');
+    
+    // Initialize Web Speech for voice input (Voice to Text)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'de-DE';
+    
+    // Function for playing text with TTS
+    let currentUtterance;
+    function speak(text, config) {
+      window.speechSynthesis.cancel(); // Stop any ongoing speech
+      currentUtterance = new SpeechSynthesisUtterance(text);
+      currentUtterance.lang = config.language;
+      currentUtterance.rate = config.defaultRate;
+      
+      // Select a gentle German female voice
+      const voices = window.speechSynthesis.getVoices();
+      const selectedVoice = voices.find(voice =>
+        voice.lang === config.language &&
+        voice.name.toLowerCase().includes("female")
+      );
+      if (selectedVoice) currentUtterance.voice = selectedVoice;
+      
+      window.speechSynthesis.speak(currentUtterance);
+      
+      // When TTS ends, play the signal tone to indicate user turn.
+      currentUtterance.onend = () => {
+        signalToneAudio.play();
+      };
+    }
+    
+    // Create a response block in the main chat area
+    function createResponseBlock(text) {
+      const clone = document.importNode(responseTemplate.content, true);
+      clone.querySelector('.response-text').innerText = text;
+      return clone;
+    }
+    
+    // Event listener for Voice-to-Text icon (left of chatbox)
+    document.querySelector('.v2t-icon').addEventListener('click', () => {
+      recognition.start();
+    });
+    
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      userInput.value = transcript;  // Auto-populate the chat input
+    };
+    
+    // Function to send user input to the backend and process response
+    async function sendUserInput(text, model = "GPT-4o") {
+      const response = await fetch('/process_input', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ text, model })
+      });
+      const data = await response.json();
+      // Create a response block in the main chat
+      const block = createResponseBlock(data.response);
+      responseArea.appendChild(block);
+      
+      // Play response using TTS
+      speak(data.response, data.tts_config);
+    }
+    
+    // Event listener for dedicated Voice Chat button (right side)
+    voiceChatButton.addEventListener('click', () => {
+      voiceChatWindow.style.display = 'block';
+      recognition.start();  // Start listening immediately when window opens
+    });
+    
+    // Event listener to close the voice chat window
+    closeVoiceChat.addEventListener('click', () => {
+      voiceChatWindow.style.display = 'none';
+      window.speechSynthesis.cancel();
+    });
+    
+    // Listen for voice conversation input within the dedicated window
+    recognition.addEventListener('result', async (event) => {
+      const transcript = event.results[0][0].transcript;
+      // Display conversation text in the voice chat window
+      const newMsg = document.createElement("p");
+      newMsg.innerText = "You: " + transcript;
+      voiceConversation.appendChild(newMsg);
+      
+      // Send transcript to backend for processing
+      const response = await fetch('/process_input', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ text: transcript, model: "GPT-4o" })
+      });
+      const data = await response.json();
+      const aiMsg = document.createElement("p");
+      aiMsg.innerText = "AI: " + data.response;
+      voiceConversation.appendChild(aiMsg);
+      
+      // Speak the AI response
+      speak(data.response, data.tts_config);
+    });
+    
+    // Allow user to interrupt the AI response (by clicking anywhere in the chat window)
+    document.addEventListener('keydown', (event) => {
+      // For example, ESC key or a designated key can serve as an interrupt signal.
+      if (event.key === "Escape") {
+        window.speechSynthesis.cancel();
+      }
+    });
+    
+    // Refresh voices if necessary (depending on browser)
+    window.speechSynthesis.onvoiceschanged = () => {
+      window.speechSynthesis.getVoices();
+    };
+  </script>
+</body>
+</html>
+
+4. Summary of Key Features in the Prompt
+
+    Dual Voice Input:
+
+        Left Icon: Dedicated voice-to-text icon next to the chatbox to enable user dictation.
+
+        Right Icon: A circular microphone icon that opens a dedicated voice conversation window for a live, spoken AI dialogue.
+
+    Consistent AI Voice Output:
+
+        Uses a natural, gentle German female voice (without harsh accents) at 1.25× speed by default.
+
+        Playback controls (pause, stop, and a speed adjustment gear) are attached under every text output.
+
+        A signal tone plays after each AI response, indicating that the user may resume speaking, and the system allows interruptions via a designated action (e.g., the Escape key).
+
+    Unified Interaction Experience:
+
+        Both the main chat and dedicated voice conversation window interact with the backend to fetch AI responses based on the selected model.
+
+        The same consistent TTS configuration is used for all spoken outputs.

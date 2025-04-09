@@ -1,0 +1,249 @@
+Voice and TTS Requirements
+
+    Voice Characteristics:
+
+        Language: German (de-DE)
+
+        Voice Style: Use a high-quality, natural, gentle German female voice. The tone should be warm and calm with minimal electronic artifacts.
+
+        Speech Rate: Default at 1.25× speed (adjustable via a settings gear icon). The rate must not exceed 2×.
+
+        Configuration Keywords:
+
+            voiceStyle: "natural-female, gentle, calm, articulate"
+
+            tone: "intelligent, warm, expressive, natural"
+
+    TTS Engine Choice:
+
+        Utilize a reliable TTS system (for example, the Web Speech API with appropriate “de-DE” voices or an external API such as Amazon Polly using a voice known for its natural and gentle output).
+
+2. UI and Interaction Setup
+
+    Playback Controls per Text Output:
+
+        Under each AI-generated text response, include two icons:
+
+            Pause Icon: Allows the user to pause the playback.
+
+            Stop Icon: Stops the playback completely.
+
+        Speed Adjustment: A gear/settings icon is provided below each output that allows users to adjust the TTS speech rate (from 1.25× up to 2×) without affecting the playback of previously rendered texts.
+
+        Use only icons for these functions and any previously implemented controls (e.g., microphone button for free speech).
+
+    Free Speech Input:
+
+        A fixed microphone button is provided (on the right) that enables free speech input, linking to the backend AI for generating responses.
+
+3. Example Code Snippet for Replit (Pseudocode/Python + HTML/JavaScript)
+
+# Example Python backend code snippet (Flask or similar)
+from flask import Flask, request, jsonify
+import your_ai_models_module  # Module managing various AI models
+
+app = Flask(__name__)
+
+# TTS configuration: using a natural, gentle German female voice
+TTS_VOICE_CONFIG = {
+    "language": "de-DE",
+    "voiceStyle": "natural-female, gentle, calm, articulate",
+    "tone": "intelligent, warm, expressive, natural",
+    "defaultRate": 1.25,  # Default speech rate 1.25x
+    "maxRate": 2.0
+}
+
+@app.route('/process_input', methods=['POST'])
+def process_input():
+    user_input = request.json.get("text")
+    selected_model = request.json.get("model", "GPT-4o")
+    
+    # Process the AI response via the selected model
+    if selected_model == "GPT-4o":
+        response_text = your_ai_models_module.gpt_4o(user_input)
+    elif selected_model == "Grok":
+        response_text = your_ai_models_module.grok(user_input)
+    elif selected_model == "DeepSeek":
+        response_text = your_ai_models_module.deepseek(user_input)
+    else:
+        response_text = "Model not supported."
+    
+    # Optional: Use PHÖNIX to synthesize responses from various models.
+    final_response = your_ai_models_module.finalize_response(response_text)
+    
+    return jsonify({"response": final_response, "tts_config": TTS_VOICE_CONFIG})
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+<!-- Example HTML for response display and control icons -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Assistant Interface</title>
+  <style>
+    /* Fixed microphone button style */
+    #micButton {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background-color: #4CAF50;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    /* Style for control icons under each text output */
+    .control-icons {
+      margin-top: 10px;
+    }
+    .control-icon {
+      cursor: pointer;
+      margin-right: 10px;
+      font-size: 20px;
+    }
+  </style>
+  <!-- Include icon font (e.g., Font Awesome) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <div id="responseArea"></div>
+  
+  <!-- Microphone button for speech input -->
+  <button id="micButton"><i class="fas fa-microphone"></i></button>
+  
+  <!-- Template for response with playback controls -->
+  <template id="responseTemplate">
+    <div class="response-output">
+      <p class="response-text"></p>
+      <div class="control-icons">
+        <i class="fas fa-pause control-icon" title="Pause"></i>
+        <i class="fas fa-stop control-icon" title="Stop"></i>
+        <i class="fas fa-cog control-icon speed-adjust" title="Adjust Speed"></i>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    const micButton = document.getElementById('micButton');
+    const responseArea = document.getElementById('responseArea');
+    const responseTemplate = document.getElementById('responseTemplate');
+
+    // Initialize speech synthesis
+    let speechSynthesisUtterance;
+    const TTS_CONFIG = {
+      language: 'de-DE',
+      defaultRate: 1.25,
+      maxRate: 2.0
+    };
+
+    // Function to speak text with current TTS_CONFIG
+    function speak(text, config) {
+      speechSynthesis.cancel(); // Stop any current utterances
+      speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
+      speechSynthesisUtterance.lang = config.language;
+      speechSynthesisUtterance.rate = config.defaultRate;
+      
+      // Select a gentle German female voice
+      const voices = window.speechSynthesis.getVoices();
+      const selectedVoice = voices.find(voice =>
+        voice.lang === config.language &&
+        voice.name.toLowerCase().includes("female")
+      );
+      if (selectedVoice) {
+        speechSynthesisUtterance.voice = selectedVoice;
+      }
+      
+      window.speechSynthesis.speak(speechSynthesisUtterance);
+    }
+
+    // Function to create a response block with control icons
+    function createResponseBlock(text) {
+      const clone = document.importNode(responseTemplate.content, true);
+      clone.querySelector('.response-text').innerText = text;
+      return clone;
+    }
+
+    // Free speech input using Web Speech API
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'de-DE';
+
+    micButton.addEventListener('click', () => {
+      recognition.start();
+    });
+
+    recognition.onresult = async (event) => {
+      const transcript = event.results[0][0].transcript;
+      // Display user input
+      responseArea.innerHTML += `<p>User said: ${transcript}</p>`;
+      
+      // Post transcript to backend
+      const response = await fetch('/process_input', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ text: transcript, model: "GPT-4o" })
+      });
+      const data = await response.json();
+      
+      // Create a new response block with controls
+      const block = createResponseBlock(data.response);
+      responseArea.appendChild(block);
+      
+      // Play the response using TTS
+      speak(data.response, data.tts_config);
+    };
+
+    // Add event listeners for playback control icons
+    document.addEventListener('click', (event) => {
+      if (event.target.classList.contains('fa-pause')) {
+        window.speechSynthesis.pause();
+      }
+      if (event.target.classList.contains('fa-stop')) {
+        window.speechSynthesis.cancel();
+      }
+      if (event.target.classList.contains('speed-adjust')) {
+        // Prompt user for new speed; ensure it does not exceed maxRate
+        let newRate = parseFloat(prompt("Enter new speech rate (current is " + TTS_CONFIG.defaultRate + "x, maximum " + TTS_CONFIG.maxRate + "x):", TTS_CONFIG.defaultRate));
+        if(newRate && newRate <= TTS_CONFIG.maxRate && newRate >= 0.5) {
+          TTS_CONFIG.defaultRate = newRate;
+          alert("Speech rate updated to " + newRate + "x.");
+        } else {
+          alert("Invalid speed. Please enter a value between 0.5 and " + TTS_CONFIG.maxRate + ".");
+        }
+      }
+    });
+
+    // Refresh voices if necessary (depending on browser)
+    window.speechSynthesis.onvoiceschanged = () => {
+      window.speechSynthesis.getVoices();
+    };
+  </script>
+</body>
+</html>
+
+4. Summary of Key Points in the Prompt
+
+    Voice Output:
+
+        The TTS uses a very natural, gentle, German female voice (with no harsh accents).
+
+        The default speaking rate is 1.25×, with an option to adjust up to 2× via a gear icon.
+
+    Playback Controls:
+
+        Under each generated text, there are icons for "Pause" and "Stop" to control the TTS output.
+
+        A gear icon allows users to adjust the playback speed.
+
+    Free Speech Input:
+
+        A microphone button is permanently available to capture free speech input from the user, triggering the AI response.
+
+    Consistent Behavior:
+
+        Every text is accompanied by the same consistent TTS voice regardless of the AI model used to generate the answer.

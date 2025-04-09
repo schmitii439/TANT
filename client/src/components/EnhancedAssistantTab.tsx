@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { Message } from '@/types';
 import { sendModelMessage, compareModelResponses, getChaoticResponse, ChatTone, AiModel } from '@/lib/multiModelAi';
-import { speak, stopSpeaking } from '@/lib/speechSynthesis';
+import { speak, stop as stopSpeaking } from '@/lib/voiceOutput';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
+import { VoicePlaybackControls } from '@/components/VoicePlaybackControls';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -740,6 +741,9 @@ export function EnhancedAssistantTab() {
                         className="prose dark:prose-invert max-w-none"
                         dangerouslySetInnerHTML={{ __html: formatMessageContent(message.content) }}
                       />
+                      {message.role === 'assistant' && (
+                        <VoicePlaybackControls text={message.content} messageId={message.id} />
+                      )}
                       {message.model && (
                         <div className="text-xs text-muted-foreground mt-2 flex justify-between items-center">
                           <span>{message.role === 'assistant' ? `Model: ${message.model}` : ''}</span>
