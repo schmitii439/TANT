@@ -12,7 +12,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { apiRequest } from '@/lib/queryClient';
 import { Card, CardContent } from '@/components/ui/card';
-import { Mic, MicOff, Send, RotateCcw, Volume2, VolumeX, Trash2, RefreshCw, MessageSquare } from 'lucide-react';
+import { Mic, MicOff, Send, RotateCcw, Volume2, VolumeX, Trash2, RefreshCw, MessageSquare, Eye, Sparkles, Database } from 'lucide-react';
+import { phoenixModel, phoenixFast, phoenixDeep } from '@/lib/phoenixModel';
+import { detectLanguageCommand, shouldRespondInGerman, getGermanLanguageReminder, Language, setActiveLanguage, transformPromptForLanguage } from '@/lib/languageController';
+import { detectConspiracyModeActivation, isConspiracyModeActive, deactivateConspiracyMode } from '@/lib/conspiracyMode';
+import { initDataCollection, runFullCollectionCycle, getCollectedData, hasDataForDate } from '@/lib/dataCollectionModule';
 
 export function EnhancedAssistantTab() {
   // Message history state
@@ -27,7 +31,15 @@ export function EnhancedAssistantTab() {
   const [selectedModel, setSelectedModel] = useState<AiModel | 'auto'>('auto');
   const [useRandomModel, setUseRandomModel] = useState(false);
   const [compareMode, setCompareMode] = useState(false);
-  const [language, setLanguage] = useState<'english' | 'german'>('english');
+  const [language, setLanguage] = useState<'english' | 'german'>('german');
+  
+  // Track conspiracy mode state
+  const [conspiracyModeActive, setConspiracyModeActive] = useState(false);
+  
+  // Update conspiracy mode indicator
+  useEffect(() => {
+    setConspiracyModeActive(isConspiracyModeActive());
+  }, [messages]);
   
   // Speech recognition
   const { 
@@ -58,6 +70,9 @@ export function EnhancedAssistantTab() {
       
       // Fetch message history from server if available
       fetchMessageHistory();
+      
+      // Initialize data collection module
+      initDataCollection();
     }
   }, []);
   
@@ -141,6 +156,12 @@ export function EnhancedAssistantTab() {
   async function handleSendMessage() {
     if (!currentInput.trim()) return;
     
+    // Check for special commands like conspiracy mode activation
+    const isConspiracyActivation = detectConspiracyModeActivation(currentInput);
+    
+    // Detect language commands (e.g., "Switch to English")
+    const isLanguageCommand = detectLanguageCommand(currentInput);
+    
     // Create and add user message
     const userMessage: Message = {
       id: messages.length + 1,
@@ -157,10 +178,62 @@ export function EnhancedAssistantTab() {
     setLoading(true);
     
     try {
+      // For conspiracy mode activation, respond with an acknowledgment
+      if (isConspiracyActivation) {
+        const activationResponse: Message = {
+          id: messages.length + 2,
+          role: 'assistant',
+          content: "Ich habe verstanden, aber ich antworte auf Deutsch. Aktiviere den freien Denkmodus für tiefergehende Analysen.",
+          model: 'system',
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, activationResponse]);
+        saveMessageToServer(activationResponse);
+        
+        if (voiceOutputEnabled) {
+          speak(activationResponse.content);
+        }
+        
+        setLoading(false);
+        return;
+      }
+      
+      // For language command, respond with confirmation
+      if (isLanguageCommand) {
+        // Check if we should respond in German despite English request
+        if (shouldRespondInGerman(currentInput)) {
+          const languageReminder: Message = {
+            id: messages.length + 2,
+            role: 'assistant',
+            content: getGermanLanguageReminder(),
+            model: 'system',
+            timestamp: new Date()
+          };
+          
+          setMessages(prev => [...prev, languageReminder]);
+          saveMessageToServer(languageReminder);
+          
+          if (voiceOutputEnabled) {
+            speak(languageReminder.content);
+          }
+          
+          setLoading(false);
+          return;
+        }
+      }
+      
+      // Update app state based on language setting
+      if (language === 'german') {
+        setActiveLanguage(Language.German);
+      } else {
+        setActiveLanguage(Language.English);
+      }
+      
       if (compareMode) {
         // Compare mode: get responses from multiple models
         const modelResponses = await compareModelResponses(
-          currentInput,
+          transformPromptForLanguage(currentInput),
           [AiModel.GPT4o, AiModel.Claude37Sonnet, AiModel.Grok2, AiModel.Llama4Maverick]
         );
         
@@ -182,7 +255,7 @@ export function EnhancedAssistantTab() {
         }
       } else if (useRandomModel) {
         // Random model mode
-        const response = await getChaoticResponse(currentInput);
+        const response = await getChaoticResponse(transformPromptForLanguage(currentInput));
         
         const aiMessage: Message = {
           id: messages.length + 2,
@@ -200,30 +273,80 @@ export function EnhancedAssistantTab() {
           speak(response.content);
         }
       } else {
-        // Standard mode with selected model or auto-selection
-        const model = selectedModel === 'auto' ? undefined : selectedModel;
-        
-        const responseContent = await sendModelMessage(
-          language === 'german' ? `Answer in German: ${currentInput}` : currentInput,
-          model,
-          selectedTone
-        );
-        
-        const aiMessage: Message = {
-          id: messages.length + 2,
-          role: 'assistant',
-          content: responseContent,
-          model: model || 'auto-selected',
-          timestamp: new Date()
-        };
-        
-        setMessages(prev => [...prev, aiMessage]);
-        saveMessageToServer(aiMessage);
-        
-        // Read response aloud if voice output is enabled
-        if (voiceOutputEnabled) {
-          speak(responseContent);
+        // PHÖNIX model integration - multi-model synthesis
+        try {
+          // Use the PHÖNIX model if there's a specific query about trends or analysis
+          const needsDeepThought = currentInput.toLowerCase().includes('analyze') || 
+                                 currentInput.toLowerCase().includes('compare') ||
+                                 currentInput.toLowerCase().includes('trends') ||
+                                 currentInput.toLowerCase().includes('synthesize');
+          
+          let phoenixResult;
+          
+          if (needsDeepThought) {
+            // Use deep PHÖNIX for complex queries
+            phoenixResult = await phoenixDeep(transformPromptForLanguage(currentInput));
+          } else {
+            // Use standard PHÖNIX for normal queries
+            phoenixResult = await phoenixModel(transformPromptForLanguage(currentInput));
+          }
+          
+          const aiMessage: Message = {
+            id: messages.length + 2,
+            role: 'assistant',
+            content: phoenixResult.synthesizedResponse,
+            model: `PHÖNIX (${phoenixResult.modelsUsed.join(', ')})`,
+            timestamp: new Date()
+          };
+          
+          setMessages(prev => [...prev, aiMessage]);
+          saveMessageToServer(aiMessage);
+          
+          // Read response aloud if voice output is enabled
+          if (voiceOutputEnabled) {
+            speak(phoenixResult.synthesizedResponse);
+          }
+        } catch (phoenixError) {
+          console.error('PHÖNIX error, falling back to standard model:', phoenixError);
+          
+          // Fallback to standard model
+          const model = selectedModel === 'auto' ? undefined : selectedModel;
+          
+          const responseContent = await sendModelMessage(
+            transformPromptForLanguage(currentInput),
+            model,
+            selectedTone
+          );
+          
+          const aiMessage: Message = {
+            id: messages.length + 2,
+            role: 'assistant',
+            content: responseContent,
+            model: model || 'auto-selected',
+            timestamp: new Date()
+          };
+          
+          setMessages(prev => [...prev, aiMessage]);
+          saveMessageToServer(aiMessage);
+          
+          // Read response aloud if voice output is enabled
+          if (voiceOutputEnabled) {
+            speak(responseContent);
+          }
         }
+      }
+      
+      // Check if this query is about recent information or news
+      if (currentInput.toLowerCase().includes('today') || 
+          currentInput.toLowerCase().includes('latest') ||
+          currentInput.toLowerCase().includes('news') ||
+          currentInput.toLowerCase().includes('current') ||
+          currentInput.toLowerCase().includes('happening')) {
+        
+        // Trigger data collection in the background
+        runFullCollectionCycle().catch(error => 
+          console.error('Background data collection error:', error)
+        );
       }
     } catch (error) {
       console.error('Error getting AI response:', error);
@@ -373,6 +496,24 @@ export function EnhancedAssistantTab() {
           </div>
           
           <div className="flex items-center space-x-3">
+            {conspiracyModeActive && (
+              <div className="flex items-center bg-red-500 bg-opacity-20 text-red-500 px-2 py-1 rounded-md text-xs font-semibold">
+                <Eye className="h-3 w-3 mr-1" />
+                Kritisches Denken Aktiv
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-5 w-5 ml-1" 
+                  onClick={() => {
+                    deactivateConspiracyMode();
+                    setConspiracyModeActive(false);
+                  }}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
+            
             <Select
               value={selectedTone}
               onValueChange={(value) => setSelectedTone(value as ChatTone)}

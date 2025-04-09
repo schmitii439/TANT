@@ -81,9 +81,9 @@ export function MasterRefreshButton({ onRefreshStart, onRefreshComplete }: Maste
             count: stockData.length
           };
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error refreshing stock data:', error);
-        refreshData.sources.financial.stocks.error = error.message;
+        refreshData.sources.financial.stocks.error = error?.message || 'Unknown error';
       }
       
       // Fetch crypto data
@@ -96,9 +96,9 @@ export function MasterRefreshButton({ onRefreshStart, onRefreshComplete }: Maste
             count: cryptoData.length
           };
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error refreshing crypto data:', error);
-        refreshData.sources.financial.crypto.error = error.message;
+        refreshData.sources.financial.crypto.error = error?.message || 'Unknown error';
       }
       
       // Fetch news
@@ -111,9 +111,9 @@ export function MasterRefreshButton({ onRefreshStart, onRefreshComplete }: Maste
             count: newsData.length
           };
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error refreshing news data:', error);
-        refreshData.sources.news.error = error.message;
+        refreshData.sources.news.error = error?.message || 'Unknown error';
       }
       
       // Save refresh details to database
@@ -149,8 +149,8 @@ export function MasterRefreshButton({ onRefreshStart, onRefreshComplete }: Maste
         setLastRefreshStatus('partial');
         toast({
           title: "Partial data refresh",
-          description: "Some data sources were updated successfully, but others failed.",
-          variant: "warning"
+          description: "Some data sources were updated successfully, but others failed."
+          // No variant specified - will use default
         });
       }
       
@@ -158,12 +158,12 @@ export function MasterRefreshButton({ onRefreshStart, onRefreshComplete }: Maste
       setLastRefreshTimestamp(refreshData.timestamp);
       onRefreshComplete?.(refreshData);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Global refresh error:', error);
       setLastRefreshStatus('failed');
       toast({
         title: "Data refresh failed",
-        description: error.message || "An unexpected error occurred",
+        description: error?.message || "An unexpected error occurred",
         variant: "destructive"
       });
     } finally {
@@ -183,7 +183,7 @@ export function MasterRefreshButton({ onRefreshStart, onRefreshComplete }: Maste
         triggeredBy: "MasterRefreshButton",
         metadata: null
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving refresh history:', error);
       throw error;
     }
