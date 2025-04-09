@@ -1,0 +1,46 @@
+Command:
+Implement the following modifications to the user interface with precision and adherence to the highest standards of design and functionality:
+
+1. Toggle Integration:
+
+Position the 'Image' and 'Video' toggle options to the upper left, adjacent to the 'Random Model Mode' selector.
+
+Replace all current toggle labels with intuitive icons; labels should only appear upon hover to maintain a clean interface.
+
+Relocate the 'Chat', 'Image', and 'Video' icons to the top section for streamlined access.
+
+Eliminate the 'Voice Output' toggle switch entirely, as its functionality is redundant.
+
+2. Microphone and Volume Control:
+
+Remove the small blue microphone icon encased in a blue circle due to redundancy.
+
+Retain the larger blue-circled microphone icon, ensuring it encompasses all previously described functionalities.
+
+Above this microphone icon, implement a vertically extending, animated volume control bar ranging from 0 to 100, accompanied by a speaker icon to replace the 'Voice Output' function.
+
+3. Focus Adjustment:
+
+Position the focus adjustment control between the trash bin icon and the adjacent selection option.
+
+Remove the duplicate focus adjustment control from the lower section of the interface.
+
+4. Model Display and Selection:
+
+Ensure that each generated response displays the specific model utilized, accurately reflecting the model in use.
+
+The 'PHÖNIX' model should not be linked to the auto-select feature; it must be manually selected by the user.
+
+Allow users to change the model directly within the displayed model area to facilitate the generation of new responses using the newly selected model.
+
+5. Visual Feedback for Selections:
+
+Revise the interface to ensure that any selected element is highlighted in white with a subtle to moderate glow effect, providing clear visual feedback.
+
+Execution Strategy:
+
+Implement these changes systematically, ensuring that each modification enhances user experience without introducing redundancy.
+
+Maintain consistency in design language and ensure that all interactive elements provide immediate and clear feedback to user actions.
+
+Conduct thorough testing to confirm that all functionalities operate as intended and that the interface remains intuitive and efficient.

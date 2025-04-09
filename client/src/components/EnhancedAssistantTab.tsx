@@ -34,6 +34,7 @@ import { MediaModeControls, MediaMode, SystemMode } from '@/components/MediaMode
 import { FloatingMicrophoneControl } from '@/components/FloatingMicrophoneControl';
 import { GeneratedMediaDisplay, MediaType } from '@/components/GeneratedMediaDisplay';
 import { KiPediaBrand } from '@/components/KiPediaBrand';
+import { ModelDisplay } from '@/components/ModelDisplay';
 import { cn } from '@/lib/utils';
 
 // Error handling helper function
@@ -1059,9 +1060,18 @@ export function EnhancedAssistantTab() {
                           </Button>
                         </div>
                       )}
-                      {message.model && (
-                        <div className="text-xs text-muted-foreground mt-2 flex justify-between items-center">
-                          <span>{message.role === 'assistant' ? `Model: ${message.model}` : ''}</span>
+                      {message.model && message.role === 'assistant' && (
+                        <div className="text-xs mt-2 flex justify-between items-center">
+                          <ModelDisplay 
+                            modelName={message.model}
+                            onModelChange={(newModel) => {
+                              // Change model and regenerate response
+                              setSelectedModel(newModel);
+                              regenerateResponse(messages.find(m => m.id === message.id - 1)?.content || '');
+                            }}
+                            onRegenerate={() => regenerateResponse(messages.find(m => m.id === message.id - 1)?.content || '')}
+                            isRegenerating={loading}
+                          />
                           
                           {/* Edit icon for user messages */}
                           {message.role === 'user' && (
@@ -1223,19 +1233,23 @@ export function EnhancedAssistantTab() {
         />
       )}
       
-      {/* Floating microphone control */}
-      {browserSupportsSpeechRecognition && systemMode === 'full-chat' && (
+      {/* Floating microphone control with volume slider */}
+      {browserSupportsSpeechRecognition && (
         <FloatingMicrophoneControl
           listening={listening}
           onToggle={toggleVoiceInput}
           transcript={transcript}
           expanded={microphonePanelExpanded}
           onExpandToggle={() => setMicrophonePanelExpanded(!microphonePanelExpanded)}
+          volumeLevel={volumeLevel}
+          onVolumeChange={setVolumeLevel}
+          isVoiceEnabled={voiceOutputEnabled}
+          onVoiceToggle={toggleVoiceOutput}
         />
       )}
       
-      {/* Media mode controls */}
-      <div className="border-t border-border bg-card p-2">
+      {/* Media mode controls in the top section */}
+      <div className="border-b border-border bg-card p-2 flex items-center justify-between">
         <MediaModeControls
           mediaMode={mediaMode}
           onMediaModeChange={handleMediaModeChange}
@@ -1245,39 +1259,26 @@ export function EnhancedAssistantTab() {
           onVolumeChange={setVolumeLevel}
           isVoiceEnabled={voiceOutputEnabled}
           onVoiceToggle={toggleVoiceOutput}
+          useRandomModel={useRandomModel}
+          onRandomModelToggle={() => setUseRandomModel(prev => !prev)}
         />
       </div>
       
       {/* Input area */}
       <div className="border-t border-border p-4">
         <div className="flex space-x-2">
-          {browserSupportsSpeechRecognition && (
-            <Button
-              onClick={toggleVoiceInput}
-              variant={listening ? "destructive" : "outline"}
-              size="icon"
-              title={listening ? "Stop listening" : "Start voice input"}
-            >
-              {listening ? (
-                <MicOff className="h-5 w-5" />
-              ) : (
-                <Mic className="h-5 w-5" />
-              )}
-            </Button>
-          )}
-          
           <Textarea
             value={currentInput}
             onChange={(e) => setCurrentInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={
               listening 
-                ? "Listening..." 
+                ? "Ich höre dir zu..." 
                 : mediaMode === 'image'
                   ? "Beschreibe das Bild, das ich generieren soll..."
                   : mediaMode === 'video'
                     ? "Beschreibe das Video, das ich generieren soll..."
-                    : "Type a message..."
+                    : "Gib hier deine Nachricht ein..."
             }
             rows={3}
             className="flex-1 resize-none"
