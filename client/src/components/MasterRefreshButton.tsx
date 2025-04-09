@@ -177,8 +177,11 @@ export function MasterRefreshButton({ onRefreshStart, onRefreshComplete }: Maste
       await apiRequest('POST', '/api/refresh-history', {
         timestamp: refreshData.timestamp,
         sources: refreshData.sources,
+        status: getStatusFromRefreshData(refreshData),
         elapsedTime: refreshData.elapsedTime,
-        status: getStatusFromRefreshData(refreshData)
+        userInitiated: true,
+        triggeredBy: "MasterRefreshButton",
+        metadata: null
       });
     } catch (error) {
       console.error('Error saving refresh history:', error);

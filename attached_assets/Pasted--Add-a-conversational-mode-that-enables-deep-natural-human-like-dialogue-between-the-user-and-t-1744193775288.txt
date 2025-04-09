@@ -1,0 +1,47 @@
+    Add a conversational mode that enables deep, natural, human-like dialogue between the user and the AI.
+    The assistant must:
+
+        Exclusively speak and understand German.
+
+            All interface texts, buttons, labels, responses, and system messages must be fully rewritten in German.
+
+            English must be completely disabled and unsupported for both input and output.
+
+            If the user enters anything in English, the system should politely respond in German and guide the user back to German.
+
+        Use only German-based voice output (Text-to-Speech).
+
+            Implement a modern, warm, and natural-sounding female German voice, optimized for conversation and understanding.
+
+            Example voice tone: a soft but intelligent narrator, like a calm documentary speaker or an empathetic AI assistant.
+
+        Understand and handle open conversation.
+
+            The assistant should remember previous parts of the conversation and be able to refer back to them.
+
+            It should handle clarifications, spontaneous questions, jokes, emotional responses, and philosophical thoughts in fluent, coherent German.
+
+        Enable a dedicated ‘Konversationsmodus’.
+
+            When activated, the AI will greet the user, maintain continuous dialogue, and keep track of the emotional tone, logical flow, and context.
+
+            Optionally display or narrate the AI’s internal reasoning (in German) for transparency.
+
+        All AI models integrated into the app (GPT-4o, Claude, Grok, DeepSeek, etc.) must receive prompts in German and return responses in German only.
+
+            If the model doesn't support German natively, it should be excluded from conversational mode.
+
+            Prioritize models known for fluent German support (GPT-4o, Claude 3.5+, Gemini Pro, etc.).
+
+        Implement a ‘Voice Input Mode’ for full speech-based conversations.
+
+            The user should be able to ask questions and respond via microphone, and the AI should speak back in fluent German.
+
+            Add an option to pause, repeat, or slow down the voice output if needed.
+
+        Ensure all collected and saved data (e.g., news, queries, logs) are also stored and processed in German.
+
+            The AI must build its long-term memory and learning base in German only, including summaries, decisions, analyses, and metadata.”**
+
+💡 Optional Enhancement:
+Add a "Deutsch Perfekt" mode that polishes the AI's grammar to near-academic level and makes it suitable for sensitive, philosophical, or professional conversations.

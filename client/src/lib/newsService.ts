@@ -61,11 +61,13 @@ export async function saveNewsToServer(news: NewsItem[]): Promise<void> {
       await apiRequest('POST', '/api/news', {
         title: item.title,
         content: item.content,
-        summary: item.summary,
-        source: item.source,
-        category: item.category,
+        summary: item.summary || null,
+        source: item.source || null,
+        category: item.category || null,
         publishedAt: item.publishedAt,
-        saved: "false"
+        saved: item.saved || "false",
+        impact: null,
+        userInterest: null
       });
     }
   } catch (error) {

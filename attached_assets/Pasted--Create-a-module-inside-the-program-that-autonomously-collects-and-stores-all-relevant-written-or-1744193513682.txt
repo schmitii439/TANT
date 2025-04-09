@@ -1,0 +1,46 @@
+    Create a module inside the program that autonomously collects and stores all relevant written or structured data (text, news articles, reports, summaries, market updates, etc.) from the internet. This module must:
+
+        Continuously monitor, fetch, and store data from defined or extendable sources.
+
+            Sources must cover: political news, financial markets, tech, science, geopolitics, niche interests (like UFOs), and any keyword provided by the user.
+
+            This list of monitored topics should be editable in a ‘Settings > Data Sources’ tab.
+
+        Automatically create timestamped .txt or structured .json files for each data type per date.
+
+            For example: news-2025-04-09.txt, stocks-2025-04-09.json, crypto-2025-04-09.txt, etc.
+
+            These files are saved locally and updated on every refresh or user-triggered query like “What happened today?”
+
+            The system must reuse already stored files for repeated questions about the same date unless explicitly told otherwise.
+
+        Ensure that from the moment the program is first installed, all collected data becomes the AI’s real, usable knowledge base.
+
+            The AI should never refer to “cutoff dates” like 2023/2024.
+
+            Instead, it must treat the local files as its living memory and always consult them before or alongside any external model query.
+
+            Data coverage grows every day with each refresh, forming a dynamic and evolving knowledge base tied to the user’s environment and requests.
+
+        On every user query related to news or current events (e.g. ‘What happened today?’ / ‘Show me crypto alerts’), the system should:
+
+            First check for existing local files matching the date or context.
+
+            If they exist, use them.
+
+            If not, fetch new data from the web, store it, and then answer using the new file.
+
+        Enable a manual override for any user who wants to exclude local files and force a live-fetch-only mode.
+
+        Add a long-term data archive system that lets the AI analyze and reference data trends over time (from all previously saved local files).
+
+            These insights must become part of the AI’s evolving logic and answer quality, especially in forecasting or comparison tasks.
+
+        All AI models used in this program must share access to the same file-based data library.
+
+            This allows seamless integration of DeepSeek, GPT-4o, Claude, Gemini, Mistral, LLaMA, Grok, etc.
+
+            The user should never get different answers from different models based on outdated training – only on their reasoning.
+
+        The system should clearly indicate which response is based on ‘local memory’ and which includes live or model-level logic.”
+
