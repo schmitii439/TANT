@@ -218,9 +218,14 @@ export function getDataSources(): DataSource[] {
  * @returns Collected data or null if not found
  */
 export function getCollectedData(
-  date: Date,
-  category: 'news' | 'financial' | string
-): any | null {
+  date: Date = new Date(),
+  category?: 'news' | 'financial' | string
+): any {
+  // If no category is specified, get all data
+  if (!category) {
+    return getAllCollectedData();
+  }
+  
   const dateStr = formatDateForStorage(date);
   const storageKey = `${STORAGE_PREFIX}${category}-${dateStr}`;
   
@@ -230,6 +235,47 @@ export function getCollectedData(
   } catch (error) {
     console.error(`Error retrieving collected data for ${category} on ${dateStr}:`, error);
     return null;
+  }
+}
+
+/**
+ * Get all collected data from all sources and categories
+ * @returns Combined object with all collected data
+ */
+export function getAllCollectedData(): Record<string, any> {
+  const allData: Record<string, any> = {};
+  
+  try {
+    // Get all keys that match our data prefix
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(STORAGE_PREFIX)) {
+        const storedData = localStorage.getItem(key);
+        if (storedData) {
+          try {
+            // Extract category and date from the key
+            const keyParts = key.replace(STORAGE_PREFIX, '').split('-');
+            const category = keyParts[0];
+            const dateStr = keyParts.slice(1).join('-');
+            
+            // Create category in allData if it doesn't exist
+            if (!allData[category]) {
+              allData[category] = {};
+            }
+            
+            // Add data under category and date
+            allData[category][dateStr] = JSON.parse(storedData);
+          } catch (parseError) {
+            console.error(`Error parsing data for key ${key}:`, parseError);
+          }
+        }
+      }
+    }
+    
+    return allData;
+  } catch (error) {
+    console.error('Error retrieving all collected data:', error);
+    return {};
   }
 }
 

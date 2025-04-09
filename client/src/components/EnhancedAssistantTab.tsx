@@ -12,10 +12,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { apiRequest } from '@/lib/queryClient';
 import { Card, CardContent } from '@/components/ui/card';
-import { Mic, MicOff, Send, RotateCcw, Volume2, VolumeX, Trash2, RefreshCw, MessageSquare, Eye, Sparkles, Database } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Mic, MicOff, Send, RotateCcw, Volume2, VolumeX, Trash2, RefreshCw, MessageSquare, Eye, Sparkles, Database, Edit, Zap } from 'lucide-react';
 import { phoenixModel, phoenixFast, phoenixDeep } from '@/lib/phoenixModel';
 import { detectLanguageCommand, shouldRespondInGerman, getGermanLanguageReminder, Language, setActiveLanguage, transformPromptForLanguage } from '@/lib/languageController';
-import { detectConspiracyModeActivation, isConspiracyModeActive, deactivateConspiracyMode } from '@/lib/conspiracyMode';
+import { detectConspiracyModeActivation, isConspiracyModeActive, deactivateConspiracyMode, activateConspiracyMode } from '@/lib/conspiracyMode';
 import { initDataCollection, runFullCollectionCycle, getCollectedData, hasDataForDate } from '@/lib/dataCollectionModule';
 
 export function EnhancedAssistantTab() {
@@ -28,7 +29,8 @@ export function EnhancedAssistantTab() {
   // UI state for assistive features
   const [voiceOutputEnabled, setVoiceOutputEnabled] = useState(true);
   const [selectedTone, setSelectedTone] = useState<ChatTone>(ChatTone.Logical);
-  const [selectedModel, setSelectedModel] = useState<AiModel | 'auto'>('auto');
+  // We use union type with string to allow both enum values and special options
+  const [selectedModel, setSelectedModel] = useState<string>('auto');
   const [useRandomModel, setUseRandomModel] = useState(false);
   const [compareMode, setCompareMode] = useState(false);
   const [language, setLanguage] = useState<'english' | 'german'>('german');
@@ -36,12 +38,20 @@ export function EnhancedAssistantTab() {
   // Track conspiracy mode state
   const [conspiracyModeActive, setConspiracyModeActive] = useState(false);
   
+  // For editing messages
+  const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
+  const [editingContent, setEditingContent] = useState('');
+  
   // Update conspiracy mode indicator
   useEffect(() => {
     setConspiracyModeActive(isConspiracyModeActive());
   }, [messages]);
   
   // Speech recognition
+  // Get toast hook for notifications
+  const { toast } = useToast();
+  
+  // Speech recognition hook
   const { 
     transcript, 
     listening, 
@@ -285,7 +295,7 @@ export function EnhancedAssistantTab() {
           
           if (needsDeepThought) {
             // Use deep PHÖNIX for complex queries
-            phoenixResult = await phoenixDeep(transformPromptForLanguage(currentInput));
+            phoenixResult = await phoenixDeep(transformPromptForLanguage(currentInput), false);
           } else {
             // Use standard PHÖNIX for normal queries
             phoenixResult = await phoenixModel(transformPromptForLanguage(currentInput));
@@ -310,7 +320,9 @@ export function EnhancedAssistantTab() {
           console.error('PHÖNIX error, falling back to standard model:', phoenixError);
           
           // Fallback to standard model
-          const model = selectedModel === 'auto' ? undefined : selectedModel;
+          const model = selectedModel === 'auto' || selectedModel === 'phoenix' 
+                    ? undefined 
+                    : selectedModel as AiModel;
           
           const responseContent = await sendModelMessage(
             transformPromptForLanguage(currentInput),
@@ -400,6 +412,130 @@ export function EnhancedAssistantTab() {
       model: 'system',
       timestamp: new Date()
     }]);
+  }
+  
+  // Start editing a user message
+  function startEditingMessage(message: Message) {
+    setEditingMessageId(message.id);
+    setEditingContent(message.content);
+  }
+  
+  // Save the edited message
+  function saveEditedMessage() {
+    if (editingMessageId === null) return;
+    
+    // Find the message being edited
+    const messageIndex = messages.findIndex(msg => msg.id === editingMessageId);
+    if (messageIndex === -1) return;
+    
+    // Create updated messages array
+    const updatedMessages = [...messages];
+    updatedMessages[messageIndex] = {
+      ...updatedMessages[messageIndex],
+      content: editingContent
+    };
+    
+    // Find and remove the AI response that followed this user message
+    if (messages[messageIndex].role === 'user' && 
+        messageIndex + 1 < messages.length && 
+        messages[messageIndex + 1].role === 'assistant') {
+      // Remove the next message (AI response)
+      updatedMessages.splice(messageIndex + 1, 1);
+    }
+    
+    // Update state
+    setMessages(updatedMessages);
+    
+    // Clear editing state
+    setEditingMessageId(null);
+    setEditingContent('');
+    
+    // Generate new response for edited message
+    setTimeout(() => {
+      const lastUserMessage = editingContent;
+      setCurrentInput(lastUserMessage);
+      handleSendMessage();
+    }, 300);
+  }
+  
+  // Cancel editing
+  function cancelEditing() {
+    setEditingMessageId(null);
+    setEditingContent('');
+  }
+  
+  // Regenerate an AI response
+  async function regenerateResponse(previousUserMessage: string) {
+    if (!previousUserMessage.trim()) return;
+    
+    setCurrentInput(previousUserMessage);
+    setLoading(true);
+    
+    try {
+      if (conspiracyModeActive) {
+        // Process with conspiracy mode active
+        // Using data from all sources for deeper analysis
+        const collectedData = await getCollectedData();
+        
+        // Create a conspiracy response that incorporates collected data
+        const conspiracyResponse: Message = {
+          id: messages.length + 1,
+          role: 'assistant',
+          content: `Regenerating response with Critical Override Engine active. Using all available data sources for unrestricted analysis...`,
+          model: 'PHÖNIX (Conspiracy Mode)',
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, conspiracyResponse]);
+        saveMessageToServer(conspiracyResponse);
+        
+        // Simulate processing time for dramatic effect
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Generate deep analysis response
+        const phoenixResult = await phoenixDeep(
+          transformPromptForLanguage(previousUserMessage), 
+          true, // conspiracy mode flag
+          collectedData // pass all collected data
+        );
+        
+        // Create the response message
+        const responseMessage: Message = {
+          id: messages.length + 2,
+          role: 'assistant',
+          content: phoenixResult.synthesizedResponse,
+          model: `PHÖNIX (${phoenixResult.modelsUsed.join(', ')}) + Critical Override`,
+          timestamp: new Date()
+        };
+        
+        // Update the messages state
+        setMessages(prev => [...prev, responseMessage]);
+        saveMessageToServer(responseMessage);
+        
+        if (voiceOutputEnabled) {
+          speak(phoenixResult.synthesizedResponse);
+        }
+      } else {
+        // Normal regeneration
+        const regeneratedMessage: Message = {
+          id: messages.length + 1,
+          role: 'user',
+          content: previousUserMessage,
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, regeneratedMessage]);
+        saveMessageToServer(regeneratedMessage);
+        
+        // Generate new response
+        await handleSendMessage();
+      }
+    } catch (error) {
+      console.error('Error regenerating response:', error);
+    } finally {
+      setLoading(false);
+      setCurrentInput('');
+    }
   }
   
   // Format message content with markdown-like syntax (basic)
@@ -536,7 +672,7 @@ export function EnhancedAssistantTab() {
             
             <Select
               value={selectedModel}
-              onValueChange={(value) => setSelectedModel(value as AiModel | 'auto')}
+              onValueChange={(value) => setSelectedModel(value)}
               disabled={compareMode || useRandomModel}
             >
               <SelectTrigger className="w-[160px]">
@@ -544,6 +680,12 @@ export function EnhancedAssistantTab() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="auto">Auto-select</SelectItem>
+                <SelectItem value="phoenix" className="font-semibold text-primary">
+                  <div className="flex items-center">
+                    <Sparkles className="h-4 w-4 mr-1 text-yellow-500" />
+                    PHÖNIX Engine
+                  </div>
+                </SelectItem>
                 <SelectItem value={AiModel.GPT4o}>GPT-4o</SelectItem>
                 <SelectItem value={AiModel.Grok2}>Grok 2</SelectItem>
                 <SelectItem value={AiModel.Claude37Sonnet}>Claude 3.7 Sonnet</SelectItem>
@@ -570,39 +712,210 @@ export function EnhancedAssistantTab() {
         className="flex-1 overflow-y-auto p-4 space-y-4"
         ref={chatHistoryRef}
       >
-        {messages.map((message) => (
-          <div 
-            key={message.id}
-            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <Card className={`
-              max-w-[85%] 
-              ${message.role === 'user' 
-                ? 'bg-primary text-primary-foreground' 
-                : 'bg-card'
-              }
-            `}>
-              <CardContent className="p-4">
-                <div className="flex items-start gap-2">
-                  {message.role === 'assistant' && (
-                    <MessageSquare className="h-5 w-5 mt-1 flex-shrink-0" />
-                  )}
-                  <div className="space-y-1">
-                    <div 
-                      className="prose dark:prose-invert max-w-none"
-                      dangerouslySetInnerHTML={{ __html: formatMessageContent(message.content) }}
-                    />
-                    {message.model && (
-                      <div className="text-xs text-muted-foreground mt-2">
-                        {message.role === 'assistant' ? `Model: ${message.model}` : ''}
-                      </div>
+        {messages.map((message, index) => {
+          const isLastUserMessage = message.role === 'user' && 
+                                  index < messages.length - 1 && 
+                                  messages[index + 1].role === 'assistant';
+          const isAssistantMessage = message.role === 'assistant';
+          
+          return (
+            <div 
+              key={message.id}
+              className={`flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
+            >
+              <Card className={`
+                max-w-[85%] 
+                ${message.role === 'user' 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'bg-card'
+                }
+              `}>
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-2">
+                    {message.role === 'assistant' && (
+                      <MessageSquare className="h-5 w-5 mt-1 flex-shrink-0" />
                     )}
+                    <div className="space-y-1 w-full">
+                      <div 
+                        className="prose dark:prose-invert max-w-none"
+                        dangerouslySetInnerHTML={{ __html: formatMessageContent(message.content) }}
+                      />
+                      {message.model && (
+                        <div className="text-xs text-muted-foreground mt-2 flex justify-between items-center">
+                          <span>{message.role === 'assistant' ? `Model: ${message.model}` : ''}</span>
+                          
+                          {/* Edit buttons for user messages */}
+                          {message.role === 'user' && (
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-6 w-6 ml-2" 
+                              onClick={() => {
+                                setCurrentInput(message.content);
+                                // Scroll to input field
+                                setTimeout(() => {
+                                  document.querySelector('textarea')?.focus();
+                                }, 100);
+                              }}
+                              title="Edit message"
+                            >
+                              <div className="text-xs text-muted-foreground flex items-center">
+                                <RotateCcw className="h-3 w-3 mr-1" />
+                                <span>Edit</span>
+                              </div>
+                            </Button>
+                          )}
+                          
+                          {/* Regenerate button for assistant messages */}
+                          {isAssistantMessage && (
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              className="h-6 w-6 ml-2"
+                              onClick={async () => {
+                                // Find the preceding user message
+                                const userMessageIndex = messages.findIndex(m => 
+                                  m.id === message.id) - 1;
+                                
+                                if (userMessageIndex >= 0 && messages[userMessageIndex].role === 'user') {
+                                  const userPrompt = messages[userMessageIndex].content;
+                                  setLoading(true);
+                                  
+                                  try {
+                                    // Use the conspiracy mode if active
+                                    let regeneratedContent;
+                                    
+                                    if (isConspiracyModeActive()) {
+                                      regeneratedContent = await phoenixDeep(
+                                        transformPromptForLanguage(userPrompt),
+                                        true
+                                      );
+                                    } else if (selectedModel === 'phoenix') {
+                                      regeneratedContent = await phoenixModel(
+                                        transformPromptForLanguage(userPrompt)
+                                      );
+                                    } else {
+                                      regeneratedContent = await sendModelMessage(
+                                        transformPromptForLanguage(userPrompt),
+                                        selectedModel === 'auto' || selectedModel === 'phoenix' 
+                                            ? undefined 
+                                            : (selectedModel as AiModel),
+                                        selectedTone
+                                      );
+                                    }
+                                    
+                                    // Create a new response with the regenerated content
+                                    const modelName = selectedModel === 'phoenix' 
+                                      ? `PHÖNIX (${
+                                          typeof regeneratedContent === 'string' 
+                                            ? 'Multi-model' 
+                                            : regeneratedContent.modelsUsed.join(', ')
+                                         })`
+                                      : (selectedModel === 'auto' ? 'auto-selected' : selectedModel);
+                                    
+                                    const content = typeof regeneratedContent === 'string'
+                                      ? regeneratedContent
+                                      : regeneratedContent.synthesizedResponse;
+                                      
+                                    const regeneratedMessage: Message = {
+                                      id: Date.now(),
+                                      role: 'assistant',
+                                      content: content,
+                                      model: `${modelName} (regenerated)`,
+                                      timestamp: new Date()
+                                    };
+                                    
+                                    // Add the regenerated message
+                                    setMessages(prev => [...prev, regeneratedMessage]);
+                                    saveMessageToServer(regeneratedMessage);
+                                    
+                                    // Read aloud if voice output is enabled
+                                    if (voiceOutputEnabled) {
+                                      speak(content);
+                                    }
+                                  } catch (error) {
+                                    console.error('Error regenerating response:', error);
+                                    toast({
+                                      title: "Regeneration failed",
+                                      description: "Failed to regenerate response. Please try again.",
+                                      variant: "destructive"
+                                    });
+                                  } finally {
+                                    setLoading(false);
+                                  }
+                                }
+                              }}
+                              title="Generate a new response"
+                              disabled={loading}
+                            >
+                              <div className="text-xs text-muted-foreground flex items-center">
+                                <RefreshCw className="h-3 w-3 mr-1" />
+                                <span>Regenerate</span>
+                              </div>
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
+                </CardContent>
+              </Card>
+              
+              {/* Special message action buttons */}
+              {isLastUserMessage && (
+                <div className="flex mt-1 space-x-1">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-6 text-xs px-2"
+                    onClick={() => {
+                      // Activate conspiracy mode for this message
+                      activateConspiracyMode();
+                      setConspiracyModeActive(true);
+                      
+                      // Regenerate the response with conspiracy mode
+                      const userPrompt = message.content;
+                      setLoading(true);
+                      
+                      phoenixDeep(transformPromptForLanguage(userPrompt), true)
+                        .then(result => {
+                          const conspiracyResponse: Message = {
+                            id: Date.now(),
+                            role: 'assistant',
+                            content: result.synthesizedResponse,
+                            model: `PHÖNIX Critical Override (${result.modelsUsed.join(', ')})`,
+                            timestamp: new Date()
+                          };
+                          
+                          setMessages(prev => [...prev, conspiracyResponse]);
+                          saveMessageToServer(conspiracyResponse);
+                          
+                          if (voiceOutputEnabled) {
+                            speak(result.synthesizedResponse);
+                          }
+                        })
+                        .catch(error => {
+                          console.error('Error generating conspiracy response:', error);
+                          toast({
+                            title: "Failed to activate Conspiracy Mode",
+                            description: "Could not generate critical analysis response.",
+                            variant: "destructive"
+                          });
+                        })
+                        .finally(() => {
+                          setLoading(false);
+                        });
+                    }}
+                    title="Activate Critical Analysis Mode for deeper thinking"
+                  >
+                    <Eye className="h-3 w-3 mr-1 text-red-500" />
+                    <span>Critical Analysis Mode</span>
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        ))}
+              )}
+            </div>
+          );
+        })}
         
         {loading && (
           <div className="flex justify-start">

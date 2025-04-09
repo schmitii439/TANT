@@ -1,0 +1,166 @@
+1. Voice and TTS Requirements
+
+    Voice Characteristics:
+
+        Use a high-quality, natural-sounding German female voice.
+
+        The voice must be clear, gentle, and free of any harsh or strong accents.
+
+        Ensure the voice remains consistent across all models and tabs.
+
+        Preferred voice style keywords: voiceStyle: "natural-female, calm, articulate", tone: "intelligent, warm, expressive"
+
+    TTS Engine Choice:
+
+        Remove any TTS model or voice that produces a harsh accent.
+
+        Select a TTS engine or voice library known for clear and neutral German pronunciations (for example, using Web Speech API with a carefully chosen “de-DE” voice, or an external API like Amazon Polly using the "Vicki" or another high-quality German voice).
+
+2. UI and Interaction Setup
+
+    Free Speech Input Button:
+
+        Implement a right-hand button with a microphone icon that is always visible.
+
+        When pressed, it activates free speech input, enabling the user to speak freely to the AI.
+
+        The voice recognition must link with the AI backend and trigger a response based on the selected model.
+
+    Consistent Model-Based Answers:
+
+        The spoken answers should always use the same TTS voice.
+
+        Ensure that the TTS system retrieves the final answer from the selected AI model (whether that’s GPT-4o, Grok, DeepSeek, etc.) and processes it with the chosen clear German voice.
+
+3. Example Code Snippet for Replit (Pseudocode/Python + JavaScript)
+
+# This is a simplified example backend snippet in Python (Flask or similar)
+from flask import Flask, request, jsonify
+import your_ai_models_module  # This module manages your various AI models
+
+app = Flask(__name__)
+
+# Define a constant for the TTS voice configuration
+TTS_VOICE_CONFIG = {
+    "language": "de-DE",
+    "voiceStyle": "natural-female, calm, articulate",
+    "tone": "intelligent, warm, expressive"
+}
+
+@app.route('/process_input', methods=['POST'])
+def process_input():
+    user_input = request.json.get("text")
+    # Determine selected model (e.g., GPT-4o, Grok, etc.)
+    selected_model = request.json.get("model", "GPT-4o")
+    
+    # Process the AI response via the selected model
+    if selected_model == "GPT-4o":
+        response_text = your_ai_models_module.gpt_4o(user_input)
+    elif selected_model == "Grok":
+        response_text = your_ai_models_module.grok(user_input)
+    elif selected_model == "DeepSeek":
+        response_text = your_ai_models_module.deepseek(user_input)
+    else:
+        response_text = "Model not supported."
+
+    # Optionally, implement further synthesis using a dedicated synthesizer like PHÖNIX.
+    final_response = your_ai_models_module.finalize_response(response_text)
+    
+    return jsonify({"response": final_response, "tts_config": TTS_VOICE_CONFIG})
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+<!-- Example HTML for the microphone button and TTS output integration -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Assistant Interface</title>
+  <style>
+    /* Simple style for a fixed microphone button on the right */
+    #micButton {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background-color: #4CAF50;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      color: white;
+      font-size: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div id="responseArea"></div>
+  
+  <!-- Microphone button -->
+  <button id="micButton"><i class="fas fa-microphone"></i></button>
+
+  <script>
+    // JavaScript example using Web Speech API
+    const micButton = document.getElementById('micButton');
+    const responseArea = document.getElementById('responseArea');
+
+    // Check for browser support
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'de-DE';
+
+    // Set up TTS with Web Speech API
+    function speak(text, ttsConfig) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = ttsConfig.language;
+      // Here we search for a voice matching our criteria
+      const voices = window.speechSynthesis.getVoices();
+      const selectedVoice = voices.find(voice => voice.lang === ttsConfig.language && voice.name.toLowerCase().includes("female"));
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
+      utterance.rate = 1;      // Adjust rate if needed
+      utterance.pitch = 1;     // Adjust pitch if needed
+      window.speechSynthesis.speak(utterance);
+    }
+
+    micButton.addEventListener('click', () => {
+      recognition.start();
+    });
+
+    recognition.onresult = async (event) => {
+      const transcript = event.results[0][0].transcript;
+      // Display the spoken input for debug
+      responseArea.innerHTML = `<p>User said: ${transcript}</p>`;
+      
+      // Post the transcript to the backend API
+      const response = await fetch('/process_input', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ text: transcript, model: "GPT-4o" })
+      });
+      const data = await response.json();
+      
+      responseArea.innerHTML += `<p>AI Response: ${data.response}</p>`;
+      speak(data.response, data.tts_config);
+    };
+
+    // Load voices asynchronously (for some browsers the voices may load after page init)
+    window.speechSynthesis.onvoiceschanged = () => {
+      window.speechSynthesis.getVoices();
+    };
+  </script>
+</body>
+</html>
+
+4. Summary of the Key Points in the Prompt
+
+    TTS Voice: Only a high-quality, natural, German female voice is used—remove any voices with a harsh accent.
+
+    Input Method: A consistently displayed microphone button on the right enables free speech input.
+
+    Model Integration: The output is generated by the selected AI model and then synthesized via PHÖNIX (or similar synthesis) to ensure a coherent, refined response.
+
+    User Experience: The interface guarantees that, regardless of the chosen model, the spoken output always uses the same natural and gentle German voice.
+

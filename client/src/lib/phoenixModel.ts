@@ -255,9 +255,15 @@ export async function phoenixFast(prompt: string): Promise<string> {
 /**
  * Deep analysis version of PHÖNIX using the most capable models
  * @param prompt User input to process
+ * @param useConspiracyMode Whether to use conspiracy mode for deeper analysis
+ * @param collectedData Optional data to incorporate in analysis
  * @returns Promise with synthesized response
  */
-export async function phoenixDeep(prompt: string): Promise<PhoenixResponse> {
+export async function phoenixDeep(
+  prompt: string, 
+  useConspiracyMode: boolean = false,
+  collectedData?: any
+): Promise<PhoenixResponse> {
   const deepModels = [
     AiModel.GPT4o,
     AiModel.Claude37Sonnet,
@@ -265,7 +271,24 @@ export async function phoenixDeep(prompt: string): Promise<PhoenixResponse> {
     AiModel.DeepseekReasoner
   ];
   
-  return phoenixModel(prompt, {
+  // If we have collected data, append it to the prompt for context
+  let enhancedPrompt = prompt;
+  
+  if (collectedData) {
+    // Format data for analysis
+    const dataContext = typeof collectedData === 'string' 
+      ? collectedData 
+      : JSON.stringify(collectedData, null, 2);
+    
+    enhancedPrompt = `${prompt}\n\nRelevante Hintergrund-Daten für die Analyse:\n${dataContext}`;
+  }
+  
+  // Apply conspiracy mode transformation if specified
+  if (useConspiracyMode) {
+    enhancedPrompt = transformPromptForConspiracyMode(enhancedPrompt);
+  }
+  
+  return phoenixModel(enhancedPrompt, {
     modelsToUse: deepModels,
     modelCount: deepModels.length,
     includeRawResponses: true
