@@ -11,3 +11,102 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .text-shadow {
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+  }
+  
+  .animation-delay-200 {
+    animation-delay: 0.2s;
+  }
+  
+  .animation-delay-500 {
+    animation-delay: 0.5s;
+  }
+  
+  .zoom-on-hover {
+    @apply transition-transform duration-300;
+  }
+  
+  .zoom-on-hover:hover {
+    @apply scale-105;
+  }
+  
+  .zoom-on-active {
+    @apply transition-transform duration-300;
+  }
+  
+  .zoom-on-active.active {
+    @apply scale-110;
+  }
+  
+  .pulse-on-active {
+    @apply transition-all duration-300;
+  }
+  
+  .pulse-on-active.active {
+    @apply animate-pulse;
+  }
+  
+  /* Glowing effects */
+  .glow-primary {
+    box-shadow: 0 0 10px theme('colors.primary.DEFAULT');
+  }
+  
+  .glow-blue {
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+  }
+  
+  .glow-white {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+  }
+  
+  /* Streaming text animation */
+  @keyframes blink-cursor {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  
+  .typing-cursor {
+    display: inline-block;
+    width: 0.5em;
+    height: 1em;
+    background-color: currentColor;
+    margin-left: 0.1em;
+    animation: blink-cursor 0.7s infinite;
+  }
+  
+  /* Microphone ripple effect */
+  @keyframes ripple {
+    0% {
+      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.3);
+    }
+    100% {
+      box-shadow: 0 0 0 20px rgba(59, 130, 246, 0);
+    }
+  }
+  
+  .mic-ripple {
+    animation: ripple 1.5s infinite;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}

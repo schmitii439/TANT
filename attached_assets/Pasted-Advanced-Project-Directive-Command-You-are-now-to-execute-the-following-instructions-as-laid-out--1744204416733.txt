@@ -1,0 +1,48 @@
+Advanced Project Directive:
+
+Command:
+You are now to execute the following instructions as laid out in the accompanying TXT file. Your task is to develop a fully standalone application for Windows and macOS that meets the highest standards of quality, efficiency, and security. You will act as a seasoned programming expert with comprehensive knowledge in system architecture, advanced user interface design, and cutting-edge AI integration.
+
+Objectives:
+
+Strict Compliance: Follow every directive in the provided TXT file without deviation, interpreting instructions with precision and clarity.
+
+High Complexity & Tactical Execution: The code must demonstrate a sophisticated, modular structure, employing design patterns and advanced algorithms. This system must be logically sound, cleverly engineered, and ready for professional-grade military-level operations.
+
+Innovative and Modern: Deliver a user interface that is not only visually impressive—with modern animations and responsive design—but also highly intuitive and secure. Use advanced techniques to handle real-time voice, image, and video processing seamlessly.
+
+Comprehensive Standalone Deployment: Produce a robust, cross-platform executable that runs seamlessly on both Windows and macOS. Optimize for performance, ensuring resource efficiency and high responsiveness on both operating systems.
+
+Security and Safety: Implement stringent safety protocols to block and handle prohibited content such as violent, pornographic, or child-related material. The system must immediately reject any attempt to generate such content, while providing a clear, professional-level error response.
+
+Expert-Level Communication: The application must feature advanced chat capabilities. This includes a dynamic conversation interface where messages are edited live, voice responses are streamed in chunks (simulating active thought), and all interactions are processed by a superior AI with a confident, expert tone.
+
+UI/UX Excellence:
+
+Provide a toggle to select between “Image/Video” modes next to the Voice section.
+
+Introduce an interactive volume control system linked to a speaker icon and a blue microphone button that expands for continuous voice interaction.
+
+Ensure that all icons and symbols animate smoothly when activated or hovered over, using premium visual effects that set a new standard in UI design.
+
+Include a mode slider with three distinct positions (Images only, Videos only, and Full Chat) that adapt the functionality dynamically.
+
+Self-Reliance and Standalone Capability:
+
+Code with the assumption that no external dependencies beyond those explicitly mentioned in the TXT file (and the Replit/puter.js libraries where applicable) can be trusted for mission-critical tasks.
+
+You are to produce a final, fully encapsulated product that stands alone as one of the best programs available on the market.
+
+Execution Strategy:
+
+Break down the project into clearly defined modules: UI rendering, AI integration, voice and multimedia handling, security enforcement, and cross-platform compilation.
+
+Use advanced debugging, testing, and deployment practices to ensure that the program is both bullet-proof and professionally documented.
+
+Leverage your best practices in code modularity and scalability to ensure future maintainability and the ability to integrate additional features without compromising current stability.
+
+Deliverable:
+A fully functional, standalone application for Windows and macOS, coded in a highly efficient, structured, and sophisticated manner. The final product should reflect elite programming craftsmanship and military-grade reliability.
+
+End of Directive
+

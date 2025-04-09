@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Message } from '@/types';
 import { sendModelMessage, compareModelResponses, getChaoticResponse, ChatTone, AiModel } from '@/lib/multiModelAi';
 import { speak, stop as stopSpeaking } from '@/lib/voiceOutput';
@@ -14,11 +15,37 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { apiRequest } from '@/lib/queryClient';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Mic, MicOff, Send, RotateCcw, Volume2, VolumeX, Trash2, RefreshCw, MessageSquare, Eye, Sparkles, Database, Edit, Zap, Reply as ReplyIcon } from 'lucide-react';
+import { 
+  Mic, MicOff, Send, RotateCcw, Volume2, VolumeX, Trash2, RefreshCw, 
+  MessageSquare, Eye, Sparkles, Database, Edit, Zap, Reply as ReplyIcon,
+  Image as ImageIcon, Video, AlertTriangle, Settings, Download, Share
+} from 'lucide-react';
 import { phoenixModel, phoenixFast, phoenixDeep } from '@/lib/phoenixModel';
 import { detectLanguageCommand, shouldRespondInGerman, getGermanLanguageReminder, Language, setActiveLanguage, transformPromptForLanguage } from '@/lib/languageController';
 import { detectConspiracyModeActivation, isConspiracyModeActive, deactivateConspiracyMode, activateConspiracyMode } from '@/lib/conspiracyMode';
 import { initDataCollection, runFullCollectionCycle, getCollectedData, hasDataForDate } from '@/lib/dataCollectionModule';
+import { 
+  generateImage, 
+  generateVideo, 
+  isImageGenerationAvailable, 
+  isVideoGenerationAvailable 
+} from '@/lib/mediaGeneration';
+import { MediaModeControls, MediaMode, SystemMode } from '@/components/MediaModeControls';
+import { FloatingMicrophoneControl } from '@/components/FloatingMicrophoneControl';
+import { GeneratedMediaDisplay, MediaType } from '@/components/GeneratedMediaDisplay';
+import { KiPediaBrand } from '@/components/KiPediaBrand';
+import { cn } from '@/lib/utils';
+
+// Error handling helper function
+function handleMediaError(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message || 'Unbekannter Fehler beim Generieren des Mediums';
+  } else if (typeof error === 'string') {
+    return error;
+  } else {
+    return 'Unbekannter Fehler beim Generieren des Mediums';
+  }
+}
 
 export function EnhancedAssistantTab() {
   // Message history state
@@ -42,6 +69,24 @@ export function EnhancedAssistantTab() {
   // For editing messages
   const [editingMessageId, setEditingMessageId] = useState<number | null>(null);
   const [editingContent, setEditingContent] = useState('');
+  
+  // Media generation state
+  const [mediaMode, setMediaMode] = useState<MediaMode>('voice');
+  const [systemMode, setSystemMode] = useState<SystemMode>('full-chat');
+  const [volumeLevel, setVolumeLevel] = useState(70);
+  const [selectedImageModel, setSelectedImageModel] = useState<string>('dall-e-3');
+  const [selectedVideoModel, setSelectedVideoModel] = useState<string>('google/gemini-video');
+  
+  // Generated media state
+  const [showGeneratedMedia, setShowGeneratedMedia] = useState(false);
+  const [generatedMediaType, setGeneratedMediaType] = useState<MediaType>('image');
+  const [generatedMediaSource, setGeneratedMediaSource] = useState<string | HTMLElement>('');
+  const [generatedMediaPrompt, setGeneratedMediaPrompt] = useState('');
+  const [generatedMediaModel, setGeneratedMediaModel] = useState('');
+  const [generatedMediaError, setGeneratedMediaError] = useState<string | undefined>(undefined);
+  
+  // Floating microphone panel state
+  const [microphonePanelExpanded, setMicrophonePanelExpanded] = useState(false);
   
   // Update conspiracy mode indicator
   useEffect(() => {
@@ -540,6 +585,227 @@ export function EnhancedAssistantTab() {
   }
   
   // Format message content with markdown-like syntax (basic)
+  // Handle media mode changes
+  function handleMediaModeChange(mode: MediaMode) {
+    setMediaMode(mode);
+    
+    // If changing to voice mode, ensure voice output is enabled
+    if (mode === 'voice' && !voiceOutputEnabled) {
+      setVoiceOutputEnabled(true);
+    }
+    
+    // Reset any active media displays when changing modes
+    if (showGeneratedMedia) {
+      setShowGeneratedMedia(false);
+    }
+    
+    toast({
+      title: mode === 'voice' 
+        ? "Sprachmodus aktiviert" 
+        : mode === 'image' 
+          ? "Bildgenerator aktiviert" 
+          : "Videogenerator aktiviert",
+      description: mode === 'voice' 
+        ? "Du kannst jetzt mit dem Assistenten sprechen und hören." 
+        : mode === 'image' 
+          ? "Du kannst jetzt Bilder generieren lassen." 
+          : "Du kannst jetzt Videos generieren lassen.",
+      duration: 3000
+    });
+  }
+  
+  // Handle system mode changes
+  function handleSystemModeChange(mode: SystemMode) {
+    setSystemMode(mode);
+    
+    toast({
+      title: mode === 'full-chat' 
+        ? "Vollständiger Chat-Modus aktiviert" 
+        : "Fokussierter Modus aktiviert",
+      description: mode === 'full-chat' 
+        ? "Alle Funktionen sind aktiv." 
+        : "Fokus auf die aktuelle Aufgabe.",
+      duration: 3000
+    });
+  }
+  
+  // Handle generating an image from text
+  async function handleGenerateImage() {
+    if (!currentInput.trim()) {
+      toast({
+        title: "Eingabe erforderlich",
+        description: "Bitte gib eine Beschreibung für das zu generierende Bild ein.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setLoading(true);
+    setGeneratedMediaError(undefined);
+    
+    try {
+      // Add the user's image prompt as a message
+      const userMessage: Message = {
+        id: messages.length + 1,
+        role: 'user',
+        content: `[Bildgenerierung]: ${currentInput}`,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, userMessage]);
+      saveMessageToServer(userMessage);
+      
+      // Generate the image
+      const image = await generateImage(currentInput, {
+        model: selectedImageModel,
+        safetyChecks: true
+      });
+      
+      // Display the generated image
+      setGeneratedMediaType('image');
+      setGeneratedMediaSource(image);
+      setGeneratedMediaPrompt(currentInput);
+      setGeneratedMediaModel(selectedImageModel);
+      setShowGeneratedMedia(true);
+      
+      // Add a message with the success info
+      const aiMessage: Message = {
+        id: messages.length + 2,
+        role: 'assistant',
+        content: `Ich habe ein Bild für dich generiert mit dem Prompt: "${currentInput}"`,
+        model: `Bildgenerator (${selectedImageModel})`,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+      saveMessageToServer(aiMessage);
+      
+      // Clear input
+      setCurrentInput('');
+    } catch (error) {
+      console.error('Image generation error:', error);
+      
+      // Add an error message
+      const errorMessage: Message = {
+        id: messages.length + 2,
+        role: 'assistant',
+        content: `Fehler bei der Bildgenerierung: ${handleMediaError(error)}`,
+        model: 'error',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+      saveMessageToServer(errorMessage);
+      
+      // Set error state for media display
+      if (showGeneratedMedia) {
+        setGeneratedMediaError(handleMediaError(error));
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+  
+  // Handle generating a video from text
+  async function handleGenerateVideo() {
+    if (!currentInput.trim()) {
+      toast({
+        title: "Eingabe erforderlich",
+        description: "Bitte gib eine Beschreibung für das zu generierende Video ein.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setLoading(true);
+    setGeneratedMediaError(undefined);
+    
+    try {
+      // Add the user's video prompt as a message
+      const userMessage: Message = {
+        id: messages.length + 1,
+        role: 'user',
+        content: `[Videogenerierung]: ${currentInput}`,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, userMessage]);
+      saveMessageToServer(userMessage);
+      
+      // Generate the video
+      const video = await generateVideo(currentInput, {
+        model: selectedVideoModel,
+        safetyChecks: true
+      });
+      
+      // Display the generated video
+      setGeneratedMediaType('video');
+      setGeneratedMediaSource(video);
+      setGeneratedMediaPrompt(currentInput);
+      setGeneratedMediaModel(selectedVideoModel);
+      setShowGeneratedMedia(true);
+      
+      // Add a message with the success info
+      const aiMessage: Message = {
+        id: messages.length + 2,
+        role: 'assistant',
+        content: `Ich habe ein Video für dich generiert mit dem Prompt: "${currentInput}"`,
+        model: `Videogenerator (${selectedVideoModel})`,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, aiMessage]);
+      saveMessageToServer(aiMessage);
+      
+      // Clear input
+      setCurrentInput('');
+    } catch (error) {
+      console.error('Video generation error:', error);
+      
+      // Add an error message
+      const errorMessage: Message = {
+        id: messages.length + 2,
+        role: 'assistant',
+        content: `Fehler bei der Videogenerierung: ${handleMediaError(error)}`,
+        model: 'error',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+      saveMessageToServer(errorMessage);
+      
+      // Set error state for media display
+      if (showGeneratedMedia) {
+        setGeneratedMediaError(handleMediaError(error));
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+  
+  // Handle regenerating media
+  function handleRegenerateMedia() {
+    if (generatedMediaType === 'image') {
+      setCurrentInput(generatedMediaPrompt);
+      setShowGeneratedMedia(false);
+      setTimeout(() => {
+        handleGenerateImage();
+      }, 300);
+    } else {
+      setCurrentInput(generatedMediaPrompt);
+      setShowGeneratedMedia(false);
+      setTimeout(() => {
+        handleGenerateVideo();
+      }, 300);
+    }
+  }
+  
+  // Handle closing media display
+  function handleCloseMediaDisplay() {
+    setShowGeneratedMedia(false);
+  }
+  
+  // Format message content for display
   function formatMessageContent(content: string) {
     // Replace code blocks
     content = content.replace(
@@ -568,8 +834,21 @@ export function EnhancedAssistantTab() {
     return content;
   }
 
+  // Fix TypeScript errors for error handling
+  const handleMediaError = (error: unknown): string => {
+    if (error instanceof Error) {
+      return error.message;
+    }
+    return 'Unbekannter Fehler aufgetreten';
+  };
+
   return (
     <div className="flex flex-col h-full">
+      {/* KI.pedia Branding */}
+      <div className="absolute top-2 right-3 z-20">
+        <KiPediaBrand />
+      </div>
+      
       {/* Controls and settings */}
       <div className="bg-card border-b border-border p-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -931,6 +1210,44 @@ export function EnhancedAssistantTab() {
         <div ref={messagesEndRef} />
       </div>
       
+      {/* Media and generated content display */}
+      {showGeneratedMedia && (
+        <GeneratedMediaDisplay
+          type={generatedMediaType}
+          source={generatedMediaSource}
+          prompt={generatedMediaPrompt}
+          model={generatedMediaModel}
+          onClose={handleCloseMediaDisplay}
+          onRegenerate={handleRegenerateMedia}
+          error={generatedMediaError}
+        />
+      )}
+      
+      {/* Floating microphone control */}
+      {browserSupportsSpeechRecognition && systemMode === 'full-chat' && (
+        <FloatingMicrophoneControl
+          listening={listening}
+          onToggle={toggleVoiceInput}
+          transcript={transcript}
+          expanded={microphonePanelExpanded}
+          onExpandToggle={() => setMicrophonePanelExpanded(!microphonePanelExpanded)}
+        />
+      )}
+      
+      {/* Media mode controls */}
+      <div className="border-t border-border bg-card p-2">
+        <MediaModeControls
+          mediaMode={mediaMode}
+          onMediaModeChange={handleMediaModeChange}
+          systemMode={systemMode}
+          onSystemModeChange={handleSystemModeChange}
+          volumeLevel={volumeLevel}
+          onVolumeChange={setVolumeLevel}
+          isVoiceEnabled={voiceOutputEnabled}
+          onVoiceToggle={toggleVoiceOutput}
+        />
+      </div>
+      
       {/* Input area */}
       <div className="border-t border-border p-4">
         <div className="flex space-x-2">
@@ -953,19 +1270,51 @@ export function EnhancedAssistantTab() {
             value={currentInput}
             onChange={(e) => setCurrentInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={listening ? "Listening..." : "Type a message..."}
+            placeholder={
+              listening 
+                ? "Listening..." 
+                : mediaMode === 'image'
+                  ? "Beschreibe das Bild, das ich generieren soll..."
+                  : mediaMode === 'video'
+                    ? "Beschreibe das Video, das ich generieren soll..."
+                    : "Type a message..."
+            }
             rows={3}
             className="flex-1 resize-none"
             disabled={loading}
           />
           
-          <Button
-            onClick={handleSendMessage}
-            disabled={!currentInput.trim() || loading}
-            title="Send message"
-          >
-            <Send className="h-5 w-5" />
-          </Button>
+          {mediaMode === 'voice' ? (
+            <Button
+              onClick={handleSendMessage}
+              disabled={!currentInput.trim() || loading}
+              title="Send message"
+            >
+              <Send className="h-5 w-5" />
+            </Button>
+          ) : mediaMode === 'image' ? (
+            <Button
+              onClick={handleGenerateImage}
+              disabled={!currentInput.trim() || loading}
+              title="Generate image"
+              variant="secondary"
+              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
+            >
+              <ImageIcon className="h-5 w-5 mr-2" />
+              Generate
+            </Button>
+          ) : (
+            <Button
+              onClick={handleGenerateVideo}
+              disabled={!currentInput.trim() || loading}
+              title="Generate video"
+              variant="secondary"
+              className="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white"
+            >
+              <Video className="h-5 w-5 mr-2" />
+              Generate
+            </Button>
+          )}
         </div>
       </div>
     </div>
