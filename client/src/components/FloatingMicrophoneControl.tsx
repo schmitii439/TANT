@@ -98,7 +98,7 @@ export function FloatingMicrophoneControl({
       <div className="flex items-center">
         {expanded && (
           <motion.div
-            className="bg-background border rounded-r-xl p-3 shadow-md"
+            className="bg-background border rounded-xl p-3 shadow-md"
             initial={{ width: 0, opacity: 0 }}
             animate={{ width: "auto", opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
@@ -115,33 +115,6 @@ export function FloatingMicrophoneControl({
             </div>
           </motion.div>
         )}
-        
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                onClick={onToggle}
-                variant={listening ? "destructive" : "default"}
-                size="icon"
-                className={cn(
-                  "h-12 w-12",
-                  "rounded-full shadow-md hover:scale-105 transition-transform",
-                  listening && "mic-ripple glow-primary",
-                  expanded ? "rounded-r-none" : "rounded-full"
-                )}
-              >
-                {listening ? (
-                  <MicOff className="h-5 w-5" />
-                ) : (
-                  <Mic className="h-5 w-5" />
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="right">
-              <p>{listening ? "Spracherkennung beenden" : "Spracherkennung starten"}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
       </div>
       
       <Button
