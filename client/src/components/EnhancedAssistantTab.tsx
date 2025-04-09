@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { apiRequest } from '@/lib/queryClient';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Mic, MicOff, Send, RotateCcw, Volume2, VolumeX, Trash2, RefreshCw, MessageSquare, Eye, Sparkles, Database, Edit, Zap } from 'lucide-react';
+import { Mic, MicOff, Send, RotateCcw, Volume2, VolumeX, Trash2, RefreshCw, MessageSquare, Eye, Sparkles, Database, Edit, Zap, Reply as ReplyIcon } from 'lucide-react';
 import { phoenixModel, phoenixFast, phoenixDeep } from '@/lib/phoenixModel';
 import { detectLanguageCommand, shouldRespondInGerman, getGermanLanguageReminder, Language, setActiveLanguage, transformPromptForLanguage } from '@/lib/languageController';
 import { detectConspiracyModeActivation, isConspiracyModeActive, deactivateConspiracyMode, activateConspiracyMode } from '@/lib/conspiracyMode';
@@ -761,7 +761,24 @@ export function EnhancedAssistantTab() {
                         dangerouslySetInnerHTML={{ __html: formatMessageContent(message.content) }}
                       />
                       {message.role === 'assistant' && (
-                        <VoicePlaybackControls text={message.content} messageId={message.id} />
+                        <div className="flex items-center space-x-2">
+                          <VoicePlaybackControls text={message.content} messageId={message.id} />
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-6 w-6" 
+                            onClick={() => {
+                              // Add a reply prefix and focus on the input
+                              setCurrentInput(`Regarding your response: `);
+                              setTimeout(() => {
+                                document.querySelector('textarea')?.focus();
+                              }, 100);
+                            }}
+                            title="Reply to this message"
+                          >
+                            <ReplyIcon className="h-3 w-3" />
+                          </Button>
+                        </div>
                       )}
                       {message.model && (
                         <div className="text-xs text-muted-foreground mt-2 flex justify-between items-center">

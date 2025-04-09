@@ -1,0 +1,421 @@
+UI Description Prompt
+**"Next to the Voice section (which will now be called 'Voice'), add a toggle labeled 'Image/Video'. When the toggle is set to Image, the application should generate an image based on the user’s text prompt using our AI; when set to Video, it should generate a video from the same type of prompt using Gemini’s current video generation model. When the Image/Video toggle is activated, any available image (or video) generation models should be displayed for selection; if none are available, all other functions must be disabled accordingly.
+Furthermore, the system must enforce strict content safety: violent, pornographic, or any material involving children is completely prohibited. Only adult humans, animals (for example, flies, bees), pigs, etc., are permitted. Even if an alien is generated, the subject must always be depicted as an adult. Any attempt to generate prohibited content should be blocked immediately with an appropriate rejection.
+
+Additionally, implement the following features:
+
+User Message Edit Button: Every sent user message should have an edit icon. When clicked, it allows the user to edit the message and start a new conversation thread from the revised text. Once edited and re-submitted (via clicking the icon or pressing Enter), the conversation is reset.
+
+Basic Assistant Removal: Do not display the basic assistant interface; only the Advanced Intelligence conversation should be visible.
+
+Voice Conversation & Microphone Feature:
+
+A blue circular microphone control is placed in the bottom right corner.
+
+When clicked, the microphone icon disappears and the circle expands (covering up to one-quarter of the window height) to provide a continuous voice conversation interface. The AI speaks its responses in chunks—mimicking natural thought or speech—and the conversation can be interrupted.
+
+The voice area includes configuration settings with blacklist restrictions applied (unless in a critical analysis mode where these restrictions are relaxed).
+
+Voice Toggle & Volume Control:
+
+The Voice toggle should move to the bottom right next to the blue circle and be connected horizontally with a speaker icon.
+
+When hovering over the speaker icon, a horizontal volume menu (ranging from 0 to 100) unfolds.
+
+Clicking the speaker icon toggles mute on and off (restoring the previous volume when unmuted).
+
+Mode Slider for Output Configuration:
+
+Add a slider (or regulator) in the same style that previously existed for “Voice Output” with three positions:
+
+Left: Only “images” are generated while all other functions are hidden; speech-to-text and chat remain active. (Images are displayed in chat but are never stored – a download option is available.)
+
+Middle: Only “videos” are generated.
+
+Right: Full chat functionality is enabled.
+
+The currently selected tab should display with a white text that slightly glows, and all icons will visually "zoom" in when activated or hovered over.
+
+Additional UX Enhancements:
+
+Sent messages include an edit icon that, when clicked, allows the user to modify their message; this resets the conversation with the updated prompt.
+
+The AI does not output its entire response immediately, but rather pieces it out gradually (suggesting it is thinking or speaking live).
+
+Include modern, innovative animations throughout the interface.
+
+In the upper right corner, display “KI.pedia” along with an icon representing your personal knowledge AI bot for the forum. When the user hovers over this icon for a prolonged period, a German description appears indicating what it represents."**
+
+Code Examples
+1. Image Generation Using AI
+When Image mode is active, the system uses puter.ai.txt2img to generate an image. It also displays available models (if any) and enforces the safety restrictions.
+
+html
+Kopieren
+<html>
+  <body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+      // Example: Generate an image of a cat using DALL·E 3.
+      // Safety: The system blocks violent, pornographic, or child-related prompts.
+      puter.ai.txt2img('A picture of a cat.', true)
+        .then((image) => {
+          document.body.appendChild(image);
+        })
+        .catch(error => console.error("Image generation error:", error));
+    </script>
+  </body>
+</html>
+2. Video Generation Using Gemini
+When Video mode is active, use the (placeholder) function puter.ai.txt2vid to generate a video. Replace the placeholder model identifier with the actual Gemini video model when available.
+
+html
+Kopieren
+<html>
+  <body>
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+      // Example: Generate a video of a cat playing in a garden.
+      puter.ai.txt2vid('A video of a cat playing in the garden.', { 
+          model: 'google/gemini-video-actual', // Replace with the actual video model identifier when available
+          testMode: false 
+      })
+      .then((video) => {
+          // Append the video to the page (assuming 'video' returns an HTMLVideoElement)
+          document.body.appendChild(video);
+      })
+      .catch(error => console.error("Video generation error:", error));
+    </script>
+  </body>
+</html>
+3. Full UI Integration with Toggle, Message Editing, and Voice Features
+This example integrates the toggle switch (Voice / Image/Video), a chat conversation area with message editing, an integrated advanced voice conversation panel triggered by a blue microphone button, and the additional volume control and mode slider elements. The code also includes subtle animations and styling for active states.
+
+html
+Kopieren
+<html>
+  <head>
+    <style>
+      /* Basic styling for mode toggle */
+      .mode-toggle {
+        display: inline-flex;
+        gap: 10px;
+        margin: 20px;
+      }
+      .mode-toggle button {
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+      .active {
+        background-color: #007BFF;
+        color: white;
+        transition: transform 0.2s ease;
+      }
+      .active:hover {
+        transform: scale(1.05);
+      }
+      /* Chat container styles */
+      #chatContainer {
+        border: 1px solid #ccc;
+        padding: 10px;
+        width: 80%;
+        margin: 20px auto;
+      }
+      .message {
+        border-bottom: 1px solid #eee;
+        padding: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .edit-icon {
+        cursor: pointer;
+        margin-left: 10px;
+        color: #888;
+        transition: transform 0.2s ease;
+      }
+      .edit-icon:hover {
+        transform: scale(1.2);
+      }
+      /* Microphone button styling */
+      #micButton {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: #007BFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 30px;
+        cursor: pointer;
+      }
+      /* Expanded voice panel styling */
+      #voicePanel {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        width: 100%;
+        max-height: 25%;
+        background-color: #f1f1f1;
+        border-top: 2px solid #007BFF;
+        display: none;
+        overflow: auto;
+        padding: 10px;
+        transition: height 0.3s ease;
+      }
+      /* Speaker icon and volume control styling */
+      #speakerContainer {
+        position: fixed;
+        bottom: 100px;
+        right: 20px;
+        display: flex;
+        align-items: center;
+      }
+      #speakerIcon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #007BFF;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      }
+      #speakerIcon:hover {
+        transform: scale(1.1);
+      }
+      #volumeControl {
+        display: none;
+        margin-left: 10px;
+      }
+      #volumeControl input {
+        width: 100px;
+      }
+      /* Mode slider styling */
+      .mode-slider {
+        width: 300px;
+        margin: 20px auto;
+        display: flex;
+        align-items: center;
+      }
+      .mode-slider input {
+        width: 100%;
+      }
+      .mode-label {
+        color: white;
+        text-shadow: 0 0 5px rgba(255,255,255,0.7);
+        margin: 0 10px;
+      }
+      /* Header branding */
+      #headerBrand {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        font-size: 20px;
+        font-weight: bold;
+      }
+      #headerBrand:hover::after {
+        content: "Der eigene Wissens KI-Bot für das Forum.";
+        font-size: 12px;
+        display: block;
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header Branding -->
+    <div id="headerBrand">KI.pedia</div>
+    
+    <!-- Mode Toggle Section -->
+    <div class="mode-toggle">
+      <button id="voiceBtn" class="active">Voice</button>
+      <button id="imgVidToggle">Image/Video</button>
+    </div>
+    
+    <!-- Mode Slider (Left: Images | Middle: Videos | Right: Full Chat) -->
+    <div class="mode-slider">
+      <span class="mode-label">Images</span>
+      <input type="range" id="modeSlider" min="0" max="2" step="1" value="2">
+      <span class="mode-label">Videos/Chat</span>
+    </div>
+    
+    <!-- Chat Conversation Container (Advanced Intelligence only) -->
+    <div id="chatContainer">
+      <!-- Example message template -->
+      <div class="message" id="msg1">
+        <span class="msg-text">Hello, how can I assist you today?</span>
+        <span class="edit-icon" onclick="editMessage('msg1')">&#9998;</span>
+      </div>
+    </div>
+    
+    <!-- Output container for Image/Video generation -->
+    <div id="output"></div>
+    
+    <!-- Hidden input for editing messages -->
+    <input type="text" id="editInput" style="display:none;" placeholder="Edit your message" onkeydown="if(event.key==='Enter'){submitEdit();}">
+    
+    <!-- Blue microphone button for voice conversation -->
+    <div id="micButton" onclick="activateVoiceConversation()">&#127908;</div>
+    
+    <!-- Speaker icon and volume control next to blue circle -->
+    <div id="speakerContainer">
+      <div id="speakerIcon" onclick="toggleMute()">&#128266;</div>
+      <div id="volumeControl">
+        <input type="range" id="volumeSlider" min="0" max="100" value="70" oninput="changeVolume(this.value)">
+      </div>
+    </div>
+    
+    <!-- Expanded voice conversation panel -->
+    <div id="voicePanel">
+      <p>Voice conversation active. Speak or type your message. The AI will respond in a natural, pieced-out manner as if it is thinking aloud.</p>
+      <!-- Additional controls and voice transcription output could be inserted here -->
+    </div>
+    
+    <!-- Include Puter.js library -->
+    <script src="https://js.puter.com/v2/"></script>
+    <script>
+      // -------------------------------
+      // State Management
+      // -------------------------------
+      let currentMode = 'voice'; // possible values: 'voice', 'image', 'video'
+      let isMuted = false;
+      let previousVolume = 70; // default volume
+      
+      // -------------------------------
+      // Toggle Functions
+      // -------------------------------
+      document.getElementById('imgVidToggle').addEventListener('click', function() {
+        // Toggle between 'image' and 'video'
+        currentMode = (currentMode === 'image' ? 'video' : 'image');
+        this.innerText = currentMode.charAt(0).toUpperCase() + currentMode.slice(1);
+      });
+      
+      // -------------------------------
+      // Volume Control and Mute Toggle
+      // -------------------------------
+      document.getElementById('speakerIcon').addEventListener('mouseover', function() {
+        document.getElementById('volumeControl').style.display = 'block';
+      });
+      document.getElementById('speakerIcon').addEventListener('mouseout', function() {
+        document.getElementById('volumeControl').style.display = 'none';
+      });
+      
+      function changeVolume(value) {
+        // Update volume level (use with Web Audio API / Speech Synthesis if desired)
+        previousVolume = value;
+        console.log("Volume set to", value);
+      }
+      
+      function toggleMute() {
+        isMuted = !isMuted;
+        if(isMuted) {
+          console.log("Muted");
+          // Set volume to 0 in your audio system
+          document.getElementById('speakerIcon').innerHTML = "&#128263;"; // Mute icon
+        } else {
+          console.log("Unmuted. Restoring volume to", previousVolume);
+          // Restore volume level
+          document.getElementById('speakerIcon').innerHTML = "&#128266;"; // Speaker icon
+        }
+      }
+      
+      // -------------------------------
+      // Content Generation Functionality
+      // -------------------------------
+      function generateContent(promptText) {
+        // Enforce safety: Block prompts containing prohibited keywords.
+        if (/violence|porn|child/gi.test(promptText)) {
+          console.error("The prompt contains prohibited content. Request blocked.");
+          return;
+        }
+        if (currentMode === 'image') {
+          puter.ai.txt2img(promptText, true)
+            .then((image) => {
+              document.getElementById('output').innerHTML = "";
+              document.getElementById('output').appendChild(image);
+            })
+            .catch(error => console.error("Image generation error:", error));
+        } else if (currentMode === 'video') {
+          puter.ai.txt2vid(promptText, { 
+              model: 'google/gemini-video-actual', // Replace with actual model identifier
+              testMode: false 
+          })
+          .then((video) => {
+            document.getElementById('output').innerHTML = "";
+            document.getElementById('output').appendChild(video);
+          })
+          .catch(error => console.error("Video generation error:", error));
+        } else {
+          console.log("Voice mode selected. Use the voice interface.");
+        }
+      }
+      
+      // -------------------------------
+      // Chat Message Editing Functionality
+      // -------------------------------
+      function editMessage(msgId) {
+        // Show an input box pre-filled with the message text for editing.
+        const msgElem = document.getElementById(msgId);
+        const msgText = msgElem.querySelector('.msg-text').innerText;
+        document.getElementById('editInput').value = msgText;
+        document.getElementById('editInput').style.display = 'block';
+        document.getElementById('editInput').dataset.editingMsg = msgId;
+        document.getElementById('editInput').focus();
+      }
+      
+      function submitEdit() {
+        const editInput = document.getElementById('editInput');
+        const newText = editInput.value;
+        const msgId = editInput.dataset.editingMsg;
+        if(newText.trim() !== "") {
+          // Remove the old message element.
+          const oldMsgElem = document.getElementById(msgId);
+          oldMsgElem.parentNode.removeChild(oldMsgElem);
+          // Create a new message thread with the edited content and an edit icon.
+          const newMsg = document.createElement('div');
+          newMsg.className = 'message';
+          newMsg.innerHTML = `<span class="msg-text">${newText}</span> <span class="edit-icon" onclick="editMessage(this.parentNode.id)">&#128394;</span>`;
+          newMsg.id = 'msg_' + Date.now();
+          document.getElementById('chatContainer').appendChild(newMsg);
+          // Optionally trigger a new AI conversation with the updated message.
+        }
+        editInput.style.display = 'none';
+        editInput.value = "";
+      }
+      
+      // -------------------------------
+      // Voice Conversation Activation and Animation
+      // -------------------------------
+      function activateVoiceConversation() {
+        // Hide the microphone button.
+        document.getElementById('micButton').style.display = 'none';
+        // Expand the voice panel to 25% of the window height.
+        document.getElementById('voicePanel').style.display = 'block';
+        document.getElementById('voicePanel').style.height = Math.floor(window.innerHeight * 0.25) + 'px';
+        // Initialize continuous voice input and voice output here (using Web Speech API or similar).
+        // Advanced Intelligence is used exclusively; basic assistant is removed.
+      }
+      
+      // Example: Trigger content generation with a sample prompt.
+      generateContent('A picture of a cat.');
+    </script>
+  </body>
+</html>
+Final Notes
+Replace Placeholders:
+Replace any placeholder values (e.g., 'google/gemini-video-actual') with the actual model identifiers and function names when available.
+
+Enhance Error Handling & UX:
+Add further error handling and visual feedback for a smoother user experience. For instance, display animated cues when prohibited content is blocked.
+
+Voice Feature Implementation:
+To achieve natural, pieced-out AI responses, integrate the Web Speech API (or another speech synthesis engine) for real-time transcription and speaking. Allow the user to interrupt or modify the conversation using the provided controls.
+
+Modern Animations & Responsive Design:
+The code includes basic transitions and scaling effects; consider further refinements (e.g., CSS animations or libraries) to ensure a modern, responsive UI that matches your vision.
